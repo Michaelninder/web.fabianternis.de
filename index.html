@@ -50,100 +50,142 @@
       <!-- CTA Buttons -->
       <nav class="cta-nav" id="cta-nav" aria-label="Links">
 
-        <!-- 1 · View Work — SVG border draw + flood fill -->
-        <a href="https://work.fabianternis.dev"
-           class="btn btn--work"
-           id="btn-work"
-           target="_blank"
-           rel="noopener noreferrer"
-           aria-label="View my work (opens in new tab)">
-          <!-- Border draw layer -->
-          <svg class="btn__border-svg" aria-hidden="true" focusable="false">
-            <rect class="btn__border-rect" x="1" y="1" width="calc(100% - 2px)" height="calc(100% - 2px)"/>
-          </svg>
-          <span class="btn__flood" aria-hidden="true"></span>
-          <span class="btn__inner">
-            <span class="btn__text">View Work</span>
-            <span class="btn__icon" aria-hidden="true">
-              <svg width="15" height="15" viewBox="0 0 24 24"
-                   fill="none" stroke="currentColor"
-                   stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
-                   aria-hidden="true" focusable="false">
-                <path d="M5 12h14"/>
-                <path d="m12 5 7 7-7 7"/>
-              </svg>
-            </span>
-          </span>
-        </a>
+        <!-- Row 1 — live links -->
+        <div class="btn-row" id="btn-row-1">
 
-        <!-- 2 · Scroll Domains — 3D tilt + shine -->
-        <a href="https://domainlist.fabianternis.de"
-           class="btn btn--domains"
-           id="btn-domains"
-           target="_blank"
-           rel="noopener noreferrer"
-           aria-label="Browse my domain list (opens in new tab)">
-          <span class="btn__shine" aria-hidden="true"></span>
-          <span class="btn__inner">
-            <span class="btn__icon" aria-hidden="true">
+          <!-- 1 · View Work -->
+          <a href="https://work.fabianternis.dev"
+             class="btn btn--work"
+             id="btn-work"
+             target="_blank"
+             rel="noopener noreferrer"
+             aria-label="View my work (opens in new tab)">
+            <span class="btn__flood" aria-hidden="true"></span>
+            <span class="btn__inner">
+              <span class="btn__text">View Work</span>
+              <span class="btn__icon" aria-hidden="true">
+                <svg width="15" height="15" viewBox="0 0 24 24"
+                     fill="none" stroke="currentColor"
+                     stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                     aria-hidden="true" focusable="false">
+                  <path d="M5 12h14"/>
+                  <path d="m12 5 7 7-7 7"/>
+                </svg>
+              </span>
+            </span>
+          </a>
+
+          <!-- 2 · Scroll Domains -->
+          <a href="https://domainlist.fabianternis.de"
+             class="btn btn--domains"
+             id="btn-domains"
+             target="_blank"
+             rel="noopener noreferrer"
+             aria-label="Browse my domain list (opens in new tab)">
+            <span class="btn__inner">
+              <span class="btn__icon" aria-hidden="true">
+                <svg width="15" height="15" viewBox="0 0 24 24"
+                     fill="none" stroke="currentColor"
+                     stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                     aria-hidden="true" focusable="false">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="M2 12h20"/>
+                  <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                </svg>
+              </span>
+              <span class="btn__text">Scroll Domains</span>
+            </span>
+          </a>
+
+          <!-- 3 · Hire Me -->
+          <a href="https://pleasehireme.eu"
+             class="btn btn--hire"
+             id="btn-hire"
+             target="_blank"
+             rel="noopener noreferrer"
+             aria-label="Hire Fabian Ternis (opens in new tab)">
+            <span class="btn__watermark" aria-hidden="true">✓</span>
+            <span class="btn__inner">
+              <span class="btn__text">Hire Me</span>
+              <span class="btn__icon" aria-hidden="true">
+                <svg width="15" height="15" viewBox="0 0 24 24"
+                     fill="none" stroke="currentColor"
+                     stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                     aria-hidden="true" focusable="false">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              </span>
+            </span>
+          </a>
+
+        </div><!-- /btn-row-1 -->
+
+        <!-- Row 2 — WIP (disabled, hover-only showcase) -->
+        <div class="btn-row btn-row--wip" id="btn-row-2">
+
+          <!-- 4 · WIP — 3D tilt + shine -->
+          <button class="btn btn--wip btn--tilt"
+                  id="btn-wip-tilt"
+                  aria-label="Work in progress — not yet available">
+            <span class="btn__shine" aria-hidden="true"></span>
+            <span class="btn__inner">
+              <span class="btn__icon" aria-hidden="true">
+                <svg width="15" height="15" viewBox="0 0 24 24"
+                     fill="none" stroke="currentColor"
+                     stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                     aria-hidden="true" focusable="false">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="12" y1="8" x2="12" y2="12"/>
+                  <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+              </span>
+              <span class="btn__text">Work in Progress</span>
+            </span>
+          </button>
+
+          <!-- 5 · WIP — slice reveal -->
+          <button class="btn btn--wip btn--slice"
+                  id="btn-wip-slice"
+                  aria-label="Work in progress — not yet available">
+            <span class="btn__slices" aria-hidden="true">
+              <span class="btn__slice btn__slice--1"></span>
+              <span class="btn__slice btn__slice--2"></span>
+              <span class="btn__slice btn__slice--3"></span>
+            </span>
+            <span class="btn__inner">
+              <span class="btn__text">Work in Progress</span>
+              <span class="btn__icon" aria-hidden="true">
+                <svg width="15" height="15" viewBox="0 0 24 24"
+                     fill="none" stroke="currentColor"
+                     stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                     aria-hidden="true" focusable="false">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12 6 12 12 16 14"/>
+                </svg>
+              </span>
+            </span>
+            <span class="btn__reveal" aria-hidden="true">
+              Coming Soon
               <svg width="15" height="15" viewBox="0 0 24 24"
                    fill="none" stroke="currentColor"
                    stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
                    aria-hidden="true" focusable="false">
                 <circle cx="12" cy="12" r="10"/>
-                <path d="M2 12h20"/>
-                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                <polyline points="12 6 12 12 16 14"/>
               </svg>
             </span>
-            <span class="btn__text">Scroll Domains</span>
-          </span>
-        </a>
+          </button>
 
-        <!-- 3 · Hire Me — 3-slice horizontal reveal -->
-        <a href="https://pleasehireme.eu"
-           class="btn btn--hire"
-           id="btn-hire"
-           target="_blank"
-           rel="noopener noreferrer"
-           aria-label="Hire Fabian Ternis (opens in new tab)">
-          <!-- Slice layers -->
-          <span class="btn__slices" aria-hidden="true">
-            <span class="btn__slice btn__slice--1"></span>
-            <span class="btn__slice btn__slice--2"></span>
-            <span class="btn__slice btn__slice--3"></span>
-          </span>
-          <!-- Default label -->
-          <span class="btn__inner">
-            <span class="btn__text">Hire Me</span>
-            <span class="btn__icon" aria-hidden="true">
-              <svg width="15" height="15" viewBox="0 0 24 24"
-                   fill="none" stroke="currentColor"
-                   stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
-                   aria-hidden="true" focusable="false">
-                <polyline points="20 6 9 17 4 12"/>
-              </svg>
-            </span>
-          </span>
-          <!-- Revealed label (appears over slices) -->
-          <span class="btn__reveal" aria-hidden="true">
-            Hire Me
-            <svg width="15" height="15" viewBox="0 0 24 24"
-                 fill="none" stroke="currentColor"
-                 stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
-                 aria-hidden="true" focusable="false">
-              <polyline points="20 6 9 17 4 12"/>
-            </svg>
-          </span>
-        </a>
+        </div><!-- /btn-row-2 -->
 
       </nav>
-    </div>
+    </div><!-- /stage -->
 
     <p class="site-footer-note" aria-hidden="true">
       ww1.fabianternis.de&nbsp;/&nbsp;ww1.fabianternis.dev
     </p>
 
-  </main>
+  </main><!-- /main -->
 
   <!-- Cursor dot -->
   <div class="cursor-dot" id="cursor-dot" aria-hidden="true"></div>

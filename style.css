@@ -35,7 +35,7 @@ body {
   overflow: hidden;
   -webkit-font-smoothing: antialiased;
   user-select: none;
-  cursor: none; /* hide default cursor; dot handles it */
+  cursor: none;
 }
 
 body.revealed {
@@ -45,8 +45,8 @@ body.revealed {
 /* ── Cursor Dot ─────────────────────────────────── */
 .cursor-dot {
   position: fixed;
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   background: var(--red);
   border-radius: 50%;
   pointer-events: none;
@@ -54,11 +54,11 @@ body.revealed {
   transform: translate(-50%, -50%) scale(0);
   opacity: 0;
   transition:
-    opacity 0.3s ease,
-    transform 0.3s ease,
-    width 0.25s var(--ease-expo),
-    height 0.25s var(--ease-expo);
-  will-change: left, top, transform;
+    opacity 0.25s ease,
+    transform 0.25s ease,
+    width 0.2s var(--ease-expo),
+    height 0.2s var(--ease-expo);
+  will-change: left, top;
 }
 
 .cursor-dot.visible {
@@ -67,10 +67,8 @@ body.revealed {
 }
 
 .cursor-dot.on-btn {
-  width: 14px;
-  height: 14px;
-  background: var(--red);
-  mix-blend-mode: multiply;
+  width: 13px;
+  height: 13px;
 }
 
 /* ── Loader ─────────────────────────────────────── */
@@ -213,8 +211,7 @@ body.revealed {
   font-size: clamp(5.5rem, 16vw, 13.5rem);
   letter-spacing: -0.025em;
   color: var(--ink);
-  
-  /* Initial hidden state */
+
   transform: translateY(110%);
   opacity: 0;
   will-change: transform, opacity;
@@ -223,7 +220,6 @@ body.revealed {
     opacity 0.3s ease;
 }
 
-/* "Ternis" nudged right for visual asymmetry */
 .name-line:last-child {
   align-self: flex-end;
   padding-right: 0.03em;
@@ -282,9 +278,33 @@ body.revealed {
 /* ── CTA Nav ────────────────────────────────────── */
 .cta-nav {
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.btn-row {
+  display: flex;
   gap: 0.9rem;
   flex-wrap: wrap;
   justify-content: center;
+}
+
+/* Divider between rows */
+.btn-row--wip {
+  position: relative;
+  padding-top: 0.85rem;
+}
+
+.btn-row--wip::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 1px;
+  background: var(--dim);
 }
 
 /* ── Base Button ────────────────────────────────── */
@@ -306,7 +326,6 @@ body.revealed {
   overflow: hidden;
   outline: none;
 
-  /* Reveal animation */
   opacity: 0;
   transform: translateY(18px);
   will-change: transform, opacity;
@@ -317,7 +336,6 @@ body.revealed {
   transform: translateY(0);
 }
 
-/* Focus ring */
 .btn:focus-visible {
   outline: 2px solid var(--red);
   outline-offset: 3px;
@@ -343,10 +361,8 @@ body.revealed {
 }
 
 /* ─────────────────────────────────────────────────
-   BUTTON 1 — "View Work"
-   Mechanism: SVG border traces around the button,
-   then a solid fill floods from the left.
-   Text inverts. Arrow translates right.
+   BUTTON 1 — "View Work"  (original)
+   Flood fill from left; arrow slides right.
 ───────────────────────────────────────────────── */
 .btn--work {
   transition:
@@ -355,32 +371,6 @@ body.revealed {
     color 0.35s ease;
 }
 
-/* SVG border draw overlay */
-.btn--work .btn__border-svg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-  pointer-events: none;
-  z-index: 3;
-}
-
-.btn--work .btn__border-rect {
-  fill: none;
-  stroke: var(--bg);
-  stroke-width: 1.5;
-  stroke-dasharray: 700;
-  stroke-dashoffset: 700;
-  transition: stroke-dashoffset 0.55s var(--ease-expo);
-}
-
-.btn--work:hover .btn__border-rect,
-.btn--work:focus-visible .btn__border-rect {
-  stroke-dashoffset: 0;
-}
-
-/* The flood layer */
 .btn--work .btn__flood {
   position: absolute;
   inset: 0;
@@ -410,49 +400,24 @@ body.revealed {
 }
 
 /* ─────────────────────────────────────────────────
-   BUTTON 2 — "Scroll Domains"
-   Mechanism: 3D perspective tilt tracks the mouse
-   (JS applies --rotateX/--rotateY). Subtle shine
-   overlay sweeps across. Globe rotates.
+   BUTTON 2 — "Scroll Domains"  (original)
+   Stacked hard-shadow lift; globe spins.
 ───────────────────────────────────────────────── */
 .btn--domains {
   transition:
     opacity 0.52s ease,
-    transform 0.18s ease,
-    box-shadow 0.3s var(--ease-expo);
-  transform-style: preserve-3d;
+    transform 0.22s var(--ease-expo),
+    box-shadow 0.22s var(--ease-expo),
+    color 0.2s ease;
 }
 
-/* Shine overlay */
-.btn--domains .btn__shine {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    130deg,
-    transparent 25%,
-    rgba(19, 19, 19, 0.07) 50%,
-    transparent 75%
-  );
-  opacity: 0;
-  pointer-events: none;
-  z-index: 1;
-  transition: opacity 0.3s ease;
-}
-
-.btn--domains:hover .btn__shine,
-.btn--domains:focus-visible .btn__shine {
-  opacity: 1;
-}
-
-/* Tilt transform applied via JS using CSS custom props */
-.btn--domains.is-tilted {
-  transform:
-    perspective(500px)
-    rotateX(var(--rx, 0deg))
-    rotateY(var(--ry, 0deg));
+.btn--domains:hover,
+.btn--domains:focus-visible {
+  transform: translate(-4px, -4px);
   box-shadow:
-    0 8px 30px -8px rgba(19, 19, 19, 0.25),
-    0 2px 8px -2px rgba(19, 19, 19, 0.15);
+    4px 4px 0 0 var(--ink),
+    7px 7px 0 0 rgba(19,19,19,0.22),
+    10px 10px 0 0 rgba(19,19,19,0.08);
 }
 
 .btn--domains .btn__icon {
@@ -464,17 +429,152 @@ body.revealed {
 }
 
 /* ─────────────────────────────────────────────────
-   BUTTON 3 — "Hire Me"
-   Mechanism: 3 horizontal red slices wipe in from
-   alternating sides. Inner text fades out; a
-   "reveal" label fades in on top of the slices.
+   BUTTON 3 — "Hire Me"  (original)
+   Red fill + slight tilt/scale + floating watermark
+   checkmark + icon burst.
 ───────────────────────────────────────────────── */
 .btn--hire {
   border-color: var(--red);
   color: var(--red);
   transition:
     opacity 0.52s ease,
-    color 0.15s ease;
+    transform 0.28s var(--ease-expo),
+    background 0.3s ease,
+    color 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.btn--hire:hover,
+.btn--hire:focus-visible {
+  background: var(--red);
+  color: var(--bg);
+  border-color: var(--red);
+  transform: rotate(1.8deg) scale(1.05);
+}
+
+.btn--hire .btn__watermark {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 5rem;
+  line-height: 1;
+  color: var(--bg);
+  opacity: 0;
+  transform: scale(0.6) rotate(-15deg);
+  transition:
+    opacity 0.25s ease,
+    transform 0.35s var(--ease-expo);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.btn--hire:hover .btn__watermark,
+.btn--hire:focus-visible .btn__watermark {
+  opacity: 0.12;
+  transform: scale(1) rotate(0deg);
+}
+
+.btn--hire .btn__icon {
+  opacity: 0;
+  transform: scale(0.4) rotate(-20deg);
+  transition:
+    opacity 0.25s ease 0.05s,
+    transform 0.3s var(--ease-expo) 0.05s;
+}
+.btn--hire:hover .btn__icon,
+.btn--hire:focus-visible .btn__icon {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+}
+
+/* ─────────────────────────────────────────────────
+   WIP BUTTONS — shared base overrides
+───────────────────────────────────────────────── */
+.btn--wip {
+  border-color: var(--dim);
+  color: rgba(19, 19, 19, 0.45);
+  /* remove <button> default styles */
+  -webkit-appearance: none;
+  appearance: none;
+  font: inherit;
+}
+
+/* ─────────────────────────────────────────────────
+   BUTTON 4 — WIP Tilt  (3D mouse-track + shine)
+───────────────────────────────────────────────── */
+.btn--tilt {
+  transition:
+    opacity 0.52s ease,
+    transform 0.15s ease,
+    box-shadow 0.25s var(--ease-expo),
+    color 0.2s ease,
+    border-color 0.2s ease;
+  transform-style: preserve-3d;
+}
+
+.btn--tilt:hover,
+.btn--tilt:focus-visible {
+  color: var(--ink);
+  border-color: var(--ink);
+  box-shadow:
+    0 10px 32px -8px rgba(19, 19, 19, 0.2),
+    0 2px 8px -2px rgba(19, 19, 19, 0.12);
+}
+
+/* JS applies these custom props */
+.btn--tilt.is-tilted {
+  transform:
+    perspective(500px)
+    rotateX(var(--rx, 0deg))
+    rotateY(var(--ry, 0deg));
+}
+
+/* Shine sweep */
+.btn--tilt .btn__shine {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    130deg,
+    transparent 30%,
+    rgba(19, 19, 19, 0.06) 50%,
+    transparent 70%
+  );
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1;
+  transition: opacity 0.25s ease;
+}
+
+.btn--tilt:hover .btn__shine,
+.btn--tilt:focus-visible .btn__shine {
+  opacity: 1;
+}
+
+.btn--tilt .btn__icon {
+  transition: transform 0.6s var(--ease-expo);
+}
+.btn--tilt:hover .btn__icon,
+.btn--tilt:focus-visible .btn__icon {
+  transform: rotate(20deg) scale(1.15);
+}
+
+/* ─────────────────────────────────────────────────
+   BUTTON 5 — WIP Slice  (3 alternating-direction
+   horizontal slices + text swap)
+───────────────────────────────────────────────── */
+.btn--slice {
+  border-color: var(--dim);
+  transition:
+    opacity 0.52s ease,
+    color 0.15s ease,
+    border-color 0.2s ease;
+}
+
+.btn--slice:hover,
+.btn--slice:focus-visible {
+  border-color: var(--ink);
 }
 
 /* Slice container */
@@ -489,36 +589,36 @@ body.revealed {
 
 .btn__slice {
   flex: 1;
-  background: var(--red);
+  background: var(--ink);
   transform: scaleX(0);
 }
 
 .btn__slice--1 {
   transform-origin: right;
-  transition: transform 0.28s var(--ease-expo) 0s;
+  transition: transform 0.26s var(--ease-expo) 0s;
 }
 .btn__slice--2 {
   transform-origin: left;
-  transition: transform 0.28s var(--ease-expo) 0.05s;
+  transition: transform 0.26s var(--ease-expo) 0.05s;
 }
 .btn__slice--3 {
   transform-origin: right;
-  transition: transform 0.28s var(--ease-expo) 0.10s;
+  transition: transform 0.26s var(--ease-expo) 0.10s;
 }
 
-.btn--hire:hover .btn__slice,
-.btn--hire:focus-visible .btn__slice {
+.btn--slice:hover .btn__slice,
+.btn--slice:focus-visible .btn__slice {
   transform: scaleX(1);
 }
 
 /* Default inner fades out */
-.btn--hire:hover .btn__inner,
-.btn--hire:focus-visible .btn__inner {
+.btn--slice:hover .btn__inner,
+.btn--slice:focus-visible .btn__inner {
   opacity: 0;
-  transform: translateY(-5px);
+  transform: translateY(-4px);
 }
 
-/* Reveal label */
+/* Revealed label */
 .btn__reveal {
   position: absolute;
   inset: 0;
@@ -532,16 +632,16 @@ body.revealed {
   text-transform: uppercase;
   color: var(--bg);
   opacity: 0;
-  transform: translateY(5px);
+  transform: translateY(4px);
   transition:
-    opacity 0.22s ease 0.2s,
-    transform 0.22s ease 0.2s;
+    opacity 0.2s ease 0.18s,
+    transform 0.2s ease 0.18s;
   z-index: 2;
   pointer-events: none;
 }
 
-.btn--hire:hover .btn__reveal,
-.btn--hire:focus-visible .btn__reveal {
+.btn--slice:hover .btn__reveal,
+.btn--slice:focus-visible .btn__reveal {
   opacity: 1;
   transform: translateY(0);
 }
@@ -594,8 +694,16 @@ body.revealed {
   }
 }
 
+/* ── Touch devices ──────────────────────────────── */
+@media (hover: none) {
+  body      { cursor: auto; }
+  .btn      { cursor: pointer; }
+  .cursor-dot { display: none; }
+}
+
 /* ── Mobile ─────────────────────────────────────── */
 @media (max-width: 580px) {
+  .btn-row,
   .cta-nav {
     flex-direction: column;
     width: 100%;
@@ -608,9 +716,7 @@ body.revealed {
   }
 
   .reg { display: none; }
-
   .site-footer-note { display: none; }
-
   .stage { gap: 2.5rem; }
 }
 
@@ -618,11 +724,4 @@ body.revealed {
   .name-line {
     letter-spacing: -0.04em;
   }
-}
-
-/* Touch devices: restore default cursor */
-@media (hover: none) {
-  body { cursor: auto; }
-  .btn { cursor: pointer; }
-  .cursor-dot { display: none; }
 }
