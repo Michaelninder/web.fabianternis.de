@@ -1,163 +1,202 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Fabian Ternis — German Webdeveloper. Portfolio & Contact.">
-    <title>Fabian Ternis — German Webdeveloper</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Fabian Ternis — German Webdeveloper. Portfolio, domain projects, and hire inquiries.">
+  <title>Fabian Ternis — German Webdeveloper</title>
+
+  <!-- Fonts: Syne (display) + Space Mono (labels) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- ═══════════════════════════════════════
-         INTRO CURTAIN
-    ═══════════════════════════════════════ -->
-    <div class="curtain" id="curtain" aria-hidden="true">
-        <div class="curtain__panel curtain__panel--a"></div>
-        <div class="curtain__panel curtain__panel--b"></div>
-        <div class="curtain__counter" id="curtainCounter">00</div>
+  <!-- ═══════════════════════════════════════
+       SKIP LINK (accessibility)
+  ═══════════════════════════════════════ -->
+  <a class="skip-link" href="#main-content">Skip to content</a>
+
+  <!-- ═══════════════════════════════════════
+       LOADER — curtain split reveal
+  ═══════════════════════════════════════ -->
+  <div id="loader" class="loader" aria-hidden="true">
+    <div class="loader__half loader__half--top">
+      <div class="loader__brand">FT</div>
     </div>
+    <div class="loader__half loader__half--bot"></div>
+    <div class="loader__seam"></div>
+  </div>
 
-    <!-- ═══════════════════════════════════════
-         GRAIN OVERLAY
-    ═══════════════════════════════════════ -->
-    <div class="grain" aria-hidden="true"></div>
+  <!-- ═══════════════════════════════════════
+       CUSTOM CURSOR
+  ═══════════════════════════════════════ -->
+  <div class="cursor-dot"  id="cursorDot"  aria-hidden="true"></div>
+  <div class="cursor-ring" id="cursorRing" aria-hidden="true"></div>
 
-    <!-- ═══════════════════════════════════════
-         AMBIENT GLOW
-    ═══════════════════════════════════════ -->
-    <div class="ambient" aria-hidden="true"></div>
+  <!-- ═══════════════════════════════════════
+       PAGE WRAPPER  (gets .is-revealed)
+  ═══════════════════════════════════════ -->
+  <div class="page" id="page">
 
-    <!-- ═══════════════════════════════════════
-         BACKGROUND GRID LINES
-    ═══════════════════════════════════════ -->
-    <div class="gridlines" aria-hidden="true" id="gridlines">
-        <span></span><span></span><span></span><span></span><span></span>
-    </div>
+    <!-- NAV ─────────────────────────────── -->
+    <nav class="nav" aria-label="Site navigation">
+      <a href="/" class="nav__logo" aria-label="Fabian Ternis — home">FT</a>
+      <div class="nav__right">
+        <span class="nav__domain">web.fabianternis.de</span>
+        <span class="nav__sep" aria-hidden="true">—</span>
+        <span class="nav__year">2026</span>
+      </div>
+    </nav>
 
-    <!-- ═══════════════════════════════════════
-         MAIN PAGE
-    ═══════════════════════════════════════ -->
-    <main class="page">
+    <!-- HERO ────────────────────────────── -->
+    <main class="hero" id="main-content">
 
-        <!-- Top eyebrow bar -->
-        <div class="eyebrow" id="eyebrow" aria-hidden="true">
-            <span class="eyebrow__tag">Portfolio</span>
-            <span class="eyebrow__divider"></span>
-            <span class="eyebrow__tag">2026</span>
-            <span class="eyebrow__spacer"></span>
-            <span class="eyebrow__tag eyebrow__tag--right">web.fabianternis.de</span>
+      <!-- Decorative large number -->
+      <div class="hero__bg-num" aria-hidden="true">01</div>
+
+      <!-- Decorative rotating square -->
+      <div class="hero__deco" aria-hidden="true">
+        <div class="deco__sq"></div>
+      </div>
+
+      <div class="hero__content">
+
+        <!-- ── Label ── -->
+        <div class="hero__label" aria-hidden="true">
+          <span class="hero__label-line"></span>
+          <span class="hero__label-text">Portfolio</span>
         </div>
 
-        <!-- ─── HERO ─── -->
-        <section class="hero" id="hero">
+        <!-- ── Name ── -->
+        <h1 class="hero__name" aria-label="Fabian Ternis">
+          <span class="name-row" aria-hidden="true">
+            <span class="name-clip">
+              <span class="ch" style="--i:0">F</span><!--
+              --><span class="ch" style="--i:1">A</span><!--
+              --><span class="ch" style="--i:2">B</span><!--
+              --><span class="ch" style="--i:3">I</span><!--
+              --><span class="ch" style="--i:4">A</span><!--
+              --><span class="ch" style="--i:5">N</span>
+            </span>
+          </span>
+          <span class="name-row" aria-hidden="true">
+            <span class="name-clip">
+              <span class="ch" style="--i:6">T</span><!--
+              --><span class="ch" style="--i:7">E</span><!--
+              --><span class="ch" style="--i:8">R</span><!--
+              --><span class="ch" style="--i:9">N</span><!--
+              --><span class="ch" style="--i:10">I</span><!--
+              --><span class="ch" style="--i:11">S</span>
+            </span>
+          </span>
+        </h1>
 
-            <h1 class="name" id="heroName" aria-label="Fabian Ternis">
-                <span class="name__row name__row--a" aria-hidden="true">
-                    <span class="nc" style="--i:0">F</span><span
-                        class="nc" style="--i:1">a</span><span
-                        class="nc" style="--i:2">b</span><span
-                        class="nc" style="--i:3">i</span><span
-                        class="nc" style="--i:4">a</span><span
-                        class="nc" style="--i:5">n</span>
-                </span>
-                <span class="name__row name__row--b" aria-hidden="true">
-                    <span class="nc" style="--i:6">T</span><span
-                        class="nc" style="--i:7">e</span><span
-                        class="nc" style="--i:8">r</span><span
-                        class="nc" style="--i:9">n</span><span
-                        class="nc" style="--i:10">i</span><span
-                        class="nc" style="--i:11">s</span>
-                </span>
-            </h1>
+        <!-- ── Subtitle ── -->
+        <p class="hero__sub">
+          <span class="sub-inner">German Webdeveloper</span>
+        </p>
 
-            <div class="subtitle" id="heroSubtitle">
-                <span class="subtitle__mark" aria-hidden="true">—</span>
-                <span class="subtitle__text">German Webdeveloper</span>
-            </div>
+        <!-- ── CTA Buttons ── -->
+        <nav class="hero__btns" aria-label="Quick links">
 
-        </section>
+          <!-- BTN 1 ▸ VIEW WORK — Liquid fill + magnetic pull + arrow launch -->
+          <a
+            href="https://work.fabianternis.dev"
+            class="btn btn--work"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="View Fabian's work (opens new tab)"
+          >
+            <span class="btn__fill" aria-hidden="true"></span>
+            <span class="btn__label">View Work</span>
+            <!-- lucide: arrow-right (embedded) -->
+            <svg class="btn__icon btn__icon--arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <line x1="5" y1="12" x2="19" y2="12"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <polyline points="12 5 19 12 12 19"
+                        stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            </svg>
+          </a>
 
-        <!-- ─── BUTTONS ─── -->
-        <nav class="cta" id="ctaNav" aria-label="Main navigation">
+          <!-- BTN 2 ▸ SCROLL DOMAINS — Targeting reticle + text scramble -->
+          <a
+            href="https://domainlist.fabianternis.de"
+            class="btn btn--domains"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Browse domain list (opens new tab)"
+          >
+            <!-- Reticle corners -->
+            <span class="rc rc--tl" aria-hidden="true"></span>
+            <span class="rc rc--tr" aria-hidden="true"></span>
+            <span class="rc rc--bl" aria-hidden="true"></span>
+            <span class="rc rc--br" aria-hidden="true"></span>
+            <span class="btn__label" data-scramble>Scroll Domains</span>
+            <!-- lucide: grid-2x2 (embedded) -->
+            <svg class="btn__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <rect x="3" y="3" width="8" height="8" rx="1"
+                    stroke="currentColor" stroke-width="2"/>
+              <rect x="13" y="3" width="8" height="8" rx="1"
+                    stroke="currentColor" stroke-width="2"/>
+              <rect x="3" y="13" width="8" height="8" rx="1"
+                    stroke="currentColor" stroke-width="2"/>
+              <rect x="13" y="13" width="8" height="8" rx="1"
+                    stroke="currentColor" stroke-width="2"/>
+            </svg>
+          </a>
 
-            <!-- BUTTON 1: VIEW WORK — Liquid gold fill sweep -->
-            <a href="https://work.fabianternis.dev"
-               class="btn btn--work"
-               target="_blank"
-               rel="noopener noreferrer"
-               aria-label="View Work — opens in new tab">
-                <span class="btn__bg" aria-hidden="true"></span>
-                <span class="btn__text">View Work</span>
-                <span class="btn__icon" aria-hidden="true">
-                    <!-- Arrow right (heroicons style, inline) -->
-                    <svg width="16" height="16" viewBox="0 0 24 24"
-                         fill="none" stroke="currentColor"
-                         stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M5 12h14"/>
-                        <path d="M12 5l7 7-7 7"/>
-                    </svg>
-                </span>
-            </a>
-
-            <!-- BUTTON 2: SCROLL DOMAINS — Traced border + text scramble -->
-            <a href="https://domainlist.fabianternis.de"
-               class="btn btn--domains"
-               target="_blank"
-               rel="noopener noreferrer"
-               aria-label="Scroll Domains — opens in new tab"
-               data-original="Scroll Domains">
-                <!-- Animated SVG border (sized via JS) -->
-                <svg class="btn__trace" aria-hidden="true">
-                    <rect class="trace__rect" x="0.5" y="0.5" rx="1.5" ry="1.5"/>
-                </svg>
-                <span class="btn__icon" aria-hidden="true">
-                    <!-- Globe icon -->
-                    <svg width="15" height="15" viewBox="0 0 24 24"
-                         fill="none" stroke="currentColor"
-                         stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"/>
-                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-                        <line x1="2" y1="12" x2="22" y2="12"/>
-                    </svg>
-                </span>
-                <span class="btn__text" id="domainsText">Scroll Domains</span>
-            </a>
-
-            <!-- BUTTON 3: HIRE ME — Pulse rings + availability dot -->
-            <a href="https://pleasehireme.eu"
-               class="btn btn--hire"
-               target="_blank"
-               rel="noopener noreferrer"
-               aria-label="Hire Me — opens in new tab">
-                <!-- Expanding rings (animated on hover) -->
-                <span class="hire__rings" aria-hidden="true">
-                    <span class="hire__ring" style="--d:0s"></span>
-                    <span class="hire__ring" style="--d:.25s"></span>
-                    <span class="hire__ring" style="--d:.5s"></span>
-                </span>
-                <span class="hire__dot" aria-hidden="true"></span>
-                <span class="btn__text">Hire Me</span>
-                <!-- Starburst icon -->
-                <span class="btn__icon hire__star" aria-hidden="true">
-                    <svg width="14" height="14" viewBox="0 0 24 24"
-                         fill="currentColor" stroke="none">
-                        <path d="M12 2l1.5 7.5L21 12l-7.5 1.5L12 21l-1.5-7.5L3 12l7.5-1.5z"/>
-                    </svg>
-                </span>
-            </a>
+          <!-- BTN 3 ▸ HIRE ME — Elastic bounce + radiating sparks -->
+          <a
+            href="https://pleasehireme.eu"
+            class="btn btn--hire"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Hire Fabian (opens new tab)"
+          >
+            <span class="btn__label">Hire Me</span>
+            <!-- lucide: zap (embedded) -->
+            <svg class="btn__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"
+                       stroke="currentColor" stroke-width="2"
+                       stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
 
         </nav>
-
-        <!-- Footer domain label -->
-        <footer class="page-footer" id="pageFooter">
-            <span class="page-footer__url">web.fabianternis.de</span>
-            <span class="page-footer__sep"> · </span>
-            <span class="page-footer__url">web.fabianternis.dev</span>
-        </footer>
-
+      </div><!-- /.hero__content -->
     </main>
 
-    <script src="script.js"></script>
+    <!-- MARQUEE ──────────────────────────── -->
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee__track">
+        <span class="mq-item">FABIAN TERNIS</span>
+        <span class="mq-dot">✦</span>
+        <span class="mq-item">GERMAN WEBDEVELOPER</span>
+        <span class="mq-dot">✦</span>
+        <span class="mq-item">AVAILABLE FOR WORK</span>
+        <span class="mq-dot">✦</span>
+        <span class="mq-item">FABIAN TERNIS</span>
+        <span class="mq-dot">✦</span>
+        <span class="mq-item">GERMAN WEBDEVELOPER</span>
+        <span class="mq-dot">✦</span>
+        <span class="mq-item">AVAILABLE FOR WORK</span>
+        <span class="mq-dot">✦</span>
+      </div>
+    </div>
+
+    <!-- FOOTER ──────────────────────────── -->
+    <footer class="footer">
+      <span class="footer__copy">© 2025 Fabian Ternis</span>
+      <span class="footer__loc">Based in Germany</span>
+    </footer>
+
+  </div><!-- /#page -->
+
+  <script src="script.js"></script>
 </body>
 </html>

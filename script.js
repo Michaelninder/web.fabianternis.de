@@ -1,254 +1,318 @@
-/* ============================================================
-   FABIAN TERNIS — PORTFOLIO
-   script.js · Animations & Interactions
-   ============================================================ */
+/* ════════════════════════════════════════════════════════════
+   FABIAN TERNIS — Portfolio
+   script.js
+   ════════════════════════════════════════════════════════════
+
+   Modules:
+   A. Utilities
+   B. Reduced-motion flag
+   C. Custom Cursor
+   D. Loader / Reveal Sequence
+   E. Text Scramble — Button 2 (Scroll Domains)
+   F. Magnetic Button — Button 1 (View Work)
+   G. Spark Particles — Button 3 (Hire Me)
+   H. Keyboard / Accessibility polish
+   ════════════════════════════════════════════════════════════ */
 
 'use strict';
 
-/* ────────────────────────────────────────────────────────────
-   UTILITY
-   ──────────────────────────────────────────────────────────── */
+/* ════════════════════════════════════════════════════════════
+   A. UTILITIES
+   ════════════════════════════════════════════════════════════ */
 
-/**
- * Pad a number to two digits, e.g. 7 → "07".
- */
-const pad2 = n => String(Math.floor(n)).padStart(2, '0');
+const $ = (sel, ctx = document) => ctx.querySelector(sel);
+const rand = (a, b) => Math.random() * (b - a) + a;
 
-/**
- * Schedule a one-shot callback after `ms` milliseconds.
- */
-const after = (ms, fn) => setTimeout(fn, ms);
+/* ════════════════════════════════════════════════════════════
+   B. REDUCED-MOTION
+   ════════════════════════════════════════════════════════════ */
 
-/* ────────────────────────────────────────────────────────────
-   LOADING COUNTER ANIMATION
-   Races from 0 → 100 with an eased curve before the curtain
-   opens, giving the impression of real loading work.
-   ──────────────────────────────────────────────────────────── */
+const NO_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-function runCounter(el, duration, onComplete) {
-    const start = performance.now();
+/* ════════════════════════════════════════════════════════════
+   C. CUSTOM CURSOR
+   Smooth-following ring + accent dot.
+   Only activates on pointer:fine (mouse) devices.
+   ════════════════════════════════════════════════════════════ */
 
-    const tick = (now) => {
-        const elapsed = now - start;
-        const raw     = Math.min(elapsed / duration, 1);
-        // Ease-out quad — fast at first, slows near 100
-        const eased   = 1 - Math.pow(1 - raw, 2.2);
-        const value   = Math.floor(eased * 100);
+(function initCursor () {
 
-        el.textContent = pad2(value);
+  if (!window.matchMedia('(pointer: fine)').matches) return;
 
-        if (raw < 1) {
-            requestAnimationFrame(tick);
-        } else {
-            el.textContent = '100';
-            onComplete();
-        }
-    };
+  const dot  = $('#cursorDot');
+  const ring = $('#cursorRing');
+  if (!dot || !ring) return;
 
-    requestAnimationFrame(tick);
-}
+  let mx = -200, my = -200;   // mouse position
+  let rx = -200, ry = -200;   // ring follower position
 
-/* ────────────────────────────────────────────────────────────
-   TEXT SCRAMBLE
-   Progressively reveals text while filling unrevealed
-   characters with random glyphs — a classic hacker effect.
-   ──────────────────────────────────────────────────────────── */
+  /* ── Move dot instantly ── */
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX;
+    my = e.clientY;
+    dot.style.transform = `translate(calc(${mx}px - 50%), calc(${my}px - 50%))`;
+  });
 
-const SCRAMBLE_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$·%—';
+  /* ── Ring follows with smooth lerp ── */
+  const LERP = 0.13;
+  (function trackRing () {
+    rx += (mx - rx) * LERP;
+    ry += (my - ry) * LERP;
+    ring.style.transform = `translate(calc(${rx}px - 50%), calc(${ry}px - 50%))`;
+    requestAnimationFrame(trackRing);
+  })();
 
-function scrambleText(el, target, duration, onDone) {
-    const len   = target.length;
-    let   start = null;
-    let   raf   = null;
+  /* ── Hover: enlarge ring and tint ── */
+  document.querySelectorAll('a, button').forEach(el => {
+    el.addEventListener('mouseenter', () => ring.classList.add('hovered'));
+    el.addEventListener('mouseleave', () => ring.classList.remove('hovered'));
+  });
 
-    function tick(timestamp) {
-        if (!start) start = timestamp;
+  /* ── Hide ring when cursor leaves viewport ── */
+  document.addEventListener('mouseleave', () => ring.classList.add('gone'));
+  document.addEventListener('mouseenter', () => ring.classList.remove('gone'));
 
-        const progress  = Math.min((timestamp - start) / duration, 1);
-        const revealed  = Math.floor(progress * len);
-        let   result    = '';
+})();
 
-        for (let i = 0; i < len; i++) {
-            if (i < revealed) {
-                result += target[i];
-            } else {
-                result += SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
-            }
-        }
 
-        el.textContent = result;
+/* ════════════════════════════════════════════════════════════
+   D. LOADER / REVEAL SEQUENCE
+   Timeline:
+     200 ms  — red seam line sweeps across
+     750 ms  — FT brand fades + bounces up
+     1 350 ms — curtain splits open
+     2 200 ms — loader hidden, page.is-revealed added
+   ════════════════════════════════════════════════════════════ */
 
-        if (progress < 1) {
-            raf = requestAnimationFrame(tick);
-        } else {
-            el.textContent = target;
-            if (typeof onDone === 'function') onDone();
-        }
+(function initLoader () {
+
+  const loader  = $('#loader');
+  const page    = $('#page');
+  if (!loader || !page) return;
+
+  document.body.classList.add('is-loading');
+
+  /* ── Skip animation for reduced-motion preference ── */
+  if (NO_MOTION) {
+    loader.style.display = 'none';
+    document.body.classList.remove('is-loading');
+    page.classList.add('is-revealed');
+    return;
+  }
+
+  const T = 1; // time multiplier (set to 0 during dev to skip)
+
+  function addPhase (cls, delay) {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        loader.classList.add(cls);
+        resolve();
+      }, delay * T);
+    });
+  }
+
+  /* Run the sequence */
+  addPhase('phase-line',  200)
+    .then(() => addPhase('phase-brand', 750))
+    .then(() => addPhase('phase-open',  1350))
+    .then(() => {
+      setTimeout(() => {
+        loader.style.display = 'none';
+        document.body.classList.remove('is-loading');
+        page.classList.add('is-revealed');
+      }, 2200 * T);
+    });
+
+  /* Safety fallback: reveal page after 4 s no matter what */
+  setTimeout(() => {
+    if (!page.classList.contains('is-revealed')) {
+      loader.style.display = 'none';
+      document.body.classList.remove('is-loading');
+      page.classList.add('is-revealed');
     }
+  }, 4000);
 
-    raf = requestAnimationFrame(tick);
+})();
 
-    return () => { if (raf) cancelAnimationFrame(raf); };
-}
 
-/* ────────────────────────────────────────────────────────────
-   DOMAINS BUTTON — BORDER TRACE + TEXT SCRAMBLE
-   ──────────────────────────────────────────────────────────── */
+/* ════════════════════════════════════════════════════════════
+   E. TEXT SCRAMBLE — Button 2 (Scroll Domains)
+   On mouseenter: characters randomise then resolve back to
+   the original string, reading left-to-right.
+   ════════════════════════════════════════════════════════════ */
 
-function initDomainsButton() {
-    const btn      = document.querySelector('.btn--domains');
-    const textEl   = document.getElementById('domainsText');
-    const traceEl  = btn.querySelector('.trace__rect');
-    const svgEl    = btn.querySelector('.btn__trace');
+(function initScramble () {
 
-    if (!btn || !textEl || !traceEl) return;
+  if (NO_MOTION) return;
 
-    const originalText = btn.dataset.original || textEl.textContent;
-    let   cancelScramble = null;
+  const btn    = $('.btn--domains');
+  if (!btn) return;
+  const label  = btn.querySelector('[data-scramble]');
+  if (!label) return;
 
-    /* ── Size the SVG rect to match the button exactly ── */
-    function syncBorder() {
-        const w = btn.offsetWidth;
-        const h = btn.offsetHeight;
+  const original = label.textContent;
+  const POOL     = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&?!';
+  const FPS      = 28;   // ms between frames
+  const SPEED    = 0.55; // chars locked per frame
 
-        svgEl.setAttribute('viewBox', `0 0 ${w} ${h}`);
-        traceEl.setAttribute('width',  w - 1);
-        traceEl.setAttribute('height', h - 1);
+  let raf, iter;
 
-        // Perimeter = total length of the closed rectangle path
-        const perimeter = 2 * ((w - 1) + (h - 1));
-        traceEl.setAttribute('stroke-dasharray',  perimeter);
-        traceEl.setAttribute('stroke-dashoffset', perimeter); // starts hidden
-        traceEl.style.strokeDasharray  = perimeter;
-        traceEl.style.strokeDashoffset = perimeter;
+  function scramble () {
+    iter = 0;
+    clearInterval(raf);
+
+    raf = setInterval(() => {
+      label.textContent = original
+        .split('')
+        .map((ch, i) => {
+          if (ch === ' ') return ' ';
+          if (i < iter)  return original[i];
+          return POOL[Math.floor(Math.random() * POOL.length)];
+        })
+        .join('');
+
+      iter += SPEED;
+
+      if (iter >= original.length) {
+        clearInterval(raf);
+        label.textContent = original;
+      }
+    }, FPS);
+  }
+
+  function reset () {
+    clearInterval(raf);
+    label.textContent = original;
+  }
+
+  btn.addEventListener('mouseenter', scramble);
+  btn.addEventListener('mouseleave', reset);
+  btn.addEventListener('focus',      scramble);
+  btn.addEventListener('blur',       reset);
+
+})();
+
+
+/* ════════════════════════════════════════════════════════════
+   F. MAGNETIC BUTTON — Button 1 (View Work)
+   Cursor pulls the button gently toward it while hovering.
+   Button snaps back elastically on leave.
+   ════════════════════════════════════════════════════════════ */
+
+(function initMagnetic () {
+
+  if (NO_MOTION) return;
+  if (!window.matchMedia('(pointer: fine)').matches) return;
+
+  const btn = $('.btn--work');
+  if (!btn) return;
+
+  const PULL = 0.28;   // fraction of offset to apply
+
+  btn.addEventListener('mouseenter', () => {
+    btn.style.transition = 'transform 0.1s linear';
+  });
+
+  btn.addEventListener('mousemove', e => {
+    const r  = btn.getBoundingClientRect();
+    const dx = (e.clientX - (r.left + r.width  / 2)) * PULL;
+    const dy = (e.clientY - (r.top  + r.height / 2)) * PULL;
+    btn.style.transform = `translate(${dx}px, ${dy}px)`;
+  });
+
+  btn.addEventListener('mouseleave', () => {
+    btn.style.transition = 'transform 0.65s cubic-bezier(0.34, 1.56, 0.64, 1)';
+    btn.style.transform  = 'translate(0, 0)';
+  });
+
+})();
+
+
+/* ════════════════════════════════════════════════════════════
+   G. SPARK PARTICLES — Button 3 (Hire Me)
+   On mouseenter: 10 coloured dots burst outward in all
+   directions, then fade and remove themselves.
+   A slow interval re-bursts every 700 ms while hovered.
+   ════════════════════════════════════════════════════════════ */
+
+(function initSparks () {
+
+  if (NO_MOTION) return;
+
+  const btn = $('.btn--hire');
+  if (!btn) return;
+
+  let ticker = null;
+
+  function burst () {
+    const r   = btn.getBoundingClientRect();
+    const cx  = r.left + r.width  / 2;
+    const cy  = r.top  + r.height / 2;
+    const N   = 11;
+
+    for (let i = 0; i < N; i++) {
+      const el  = document.createElement('div');
+      el.classList.add('spark');
+
+      /* Evenly spread + small random offset */
+      const angle = ((i / N) * Math.PI * 2) + rand(-0.25, 0.25);
+      const dist  = rand(32, 70);
+      const dx    = Math.cos(angle) * dist;
+      const dy    = Math.sin(angle) * dist;
+      const size  = rand(3, 7);
+      const dur   = rand(0.38, 0.62);
+
+      el.style.cssText = `
+        left: ${cx}px;
+        top:  ${cy}px;
+        width:  ${size}px;
+        height: ${size}px;
+        --dx:  ${dx}px;
+        --dy:  ${dy}px;
+        --dur: ${dur}s;
+      `;
+
+      document.body.appendChild(el);
+
+      el.addEventListener('animationend', () => el.remove(), { once: true });
     }
+  }
 
-    syncBorder();
+  btn.addEventListener('mouseenter', () => {
+    burst();
+    ticker = setInterval(burst, 700);
+  });
 
-    // Re-sync on resize
-    const ro = new ResizeObserver(syncBorder);
-    ro.observe(btn);
+  btn.addEventListener('mouseleave', () => {
+    clearInterval(ticker);
+    ticker = null;
+  });
 
-    /* ── Mouse enter: draw the border + scramble text ── */
-    btn.addEventListener('mouseenter', () => {
-        // Animate the stroke-dashoffset to 0 (draws the full perimeter)
-        traceEl.style.transition       = 'stroke-dashoffset 0.65s cubic-bezier(0.16, 1, 0.3, 1)';
-        traceEl.style.strokeDashoffset = '0';
+  /* Also fire on keyboard focus for accessibility */
+  btn.addEventListener('focus', burst);
 
-        // Cancel any in-flight scramble and start a new one
-        if (cancelScramble) cancelScramble();
-        cancelScramble = scrambleText(textEl, originalText, 620);
-    });
+})();
 
-    /* ── Mouse leave: retrace back + restore text cleanly ── */
-    btn.addEventListener('mouseleave', () => {
-        const dash = traceEl.style.strokeDasharray;
-        traceEl.style.transition       = 'stroke-dashoffset 0.4s cubic-bezier(0.87, 0, 0.13, 1)';
-        traceEl.style.strokeDashoffset = dash; // hide again
 
-        if (cancelScramble) { cancelScramble(); cancelScramble = null; }
-        textEl.textContent = originalText;
-    });
-}
+/* ════════════════════════════════════════════════════════════
+   H. ACCESSIBILITY POLISH
+   ════════════════════════════════════════════════════════════ */
 
-/* ────────────────────────────────────────────────────────────
-   PAGE LOAD SEQUENCE
-   Curtain → counter → reveal → stagger elements in
-   ──────────────────────────────────────────────────────────── */
+/* Add data-revealed marker once page is revealed
+   so external tools / tests can detect readiness */
+(function watchReveal () {
+  const observer = new MutationObserver((mutations) => {
+    for (const m of mutations) {
+      if (m.type === 'attributes' && m.attributeName === 'class') {
+        const page = m.target;
+        if (page.classList.contains('is-revealed')) {
+          document.body.setAttribute('data-loaded', 'true');
+          observer.disconnect();
+        }
+      }
+    }
+  });
 
-function initLoadSequence() {
-    const curtain  = document.getElementById('curtain');
-    const counter  = document.getElementById('curtainCounter');
-    const gridlines = document.getElementById('gridlines');
-    const eyebrow  = document.querySelector('.eyebrow');
-    const nameEl   = document.getElementById('heroName');
-    const subtitle = document.getElementById('heroSubtitle');
-    const cta      = document.getElementById('ctaNav');
-    const footer   = document.querySelector('.page-footer');
-
-    // Step 1 — Run the loading counter (0 → 100 over ~900ms)
-    runCounter(counter, 900, () => {
-
-        // Step 2 — Fade out the counter, then open the curtain
-        counter.classList.add('hidden');
-
-        after(200, () => {
-            curtain.classList.add('is-open');
-
-            // Trigger gridlines after curtain starts opening
-            after(400, () => {
-                gridlines.classList.add('visible');
-            });
-
-            // Step 3 — Show eyebrow bar
-            after(600, () => {
-                eyebrow.classList.add('visible');
-            });
-
-            // Step 4 — Animate name characters in
-            after(700, () => {
-                const chars = nameEl.querySelectorAll('.nc');
-                chars.forEach(c => c.classList.add('show'));
-            });
-
-            // Step 5 — Subtitle
-            after(1300, () => {
-                subtitle.classList.add('visible');
-            });
-
-            // Step 6 — CTA buttons
-            after(1750, () => {
-                cta.classList.add('visible');
-            });
-
-            // Step 7 — Footer + unlock scroll
-            after(2200, () => {
-                footer.classList.add('visible');
-                after(300, () => document.body.classList.add('ready'));
-            });
-        });
-    });
-}
-
-/* ────────────────────────────────────────────────────────────
-   CURSOR MAGNETIC EFFECT
-   Buttons gently attract toward the mouse pointer for a
-   tactile, premium feel (subtle — never exceeds ±8px).
-   ──────────────────────────────────────────────────────────── */
-
-function initMagneticButtons() {
-    const MAX_SHIFT = 8; // px
-
-    document.querySelectorAll('.btn').forEach(btn => {
-        btn.addEventListener('mousemove', e => {
-            const rect   = btn.getBoundingClientRect();
-            const cx     = rect.left + rect.width  / 2;
-            const cy     = rect.top  + rect.height / 2;
-            const dx     = (e.clientX - cx) / (rect.width  / 2);
-            const dy     = (e.clientY - cy) / (rect.height / 2);
-
-            btn.style.transform = `translate(${dx * MAX_SHIFT}px, ${dy * MAX_SHIFT}px)`;
-        });
-
-        btn.addEventListener('mouseleave', () => {
-            btn.style.transition = 'transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.35s ease, border-color 0.35s ease, box-shadow 0.45s ease, background 0.45s ease';
-            btn.style.transform  = 'translate(0, 0)';
-            // Reset transition to default after spring settles
-            after(500, () => { btn.style.transition = ''; });
-        });
-
-        btn.addEventListener('mouseenter', () => {
-            btn.style.transition = 'transform 0.15s ease, color 0.35s ease, border-color 0.35s ease, box-shadow 0.45s ease, background 0.45s ease';
-        });
-    });
-}
-
-/* ────────────────────────────────────────────────────────────
-   BOOT
-   ──────────────────────────────────────────────────────────── */
-
-document.addEventListener('DOMContentLoaded', () => {
-    initLoadSequence();
-    initDomainsButton();
-    initMagneticButtons();
-});
+  const page = $('#page');
+  if (page) observer.observe(page, { attributes: true });
+})();
