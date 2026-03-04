@@ -1,234 +1,250 @@
-/* ========================================
-   DOM Elements
-======================================== */
-const loader = document.getElementById('loader');
-const mainContent = document.getElementById('mainContent');
-const cursorFollower = document.getElementById('cursorFollower');
-const btnWork = document.getElementById('btnWork');
-const btnDomains = document.getElementById('btnDomains');
-const btnHire = document.getElementById('btnHire');
+/**
+ * Fabian Ternis — Portfolio Landing Page
+ * script.js
+ *
+ * Handles:
+ *  1. Loader progress animation (RAF-based counter)
+ *  2. Loader shutter-open reveal
+ *  3. Staggered content entrance sequence
+ *  4. Prefers-reduced-motion fallback
+ *  5. Cursor dot follower
+ *  6. 3D tilt effect on Scroll Domains button
+ *  7. Click ripple on Hire Me button
+ */
 
-/* ========================================
-   Configuration
-======================================== */
-const CONFIG = {
-    loaderDuration: 1800,
-    cursorSmoothness: 0.15,
-    tiltIntensity: 15
-};
+(function () {
+  'use strict';
 
-/* ========================================
-   State
-======================================== */
-let mouseX = 0;
-let mouseY = 0;
-let cursorX = 0;
-let cursorY = 0;
-let isTouchDevice = false;
+  /* ── DOM refs ─────────────────────────────────── */
+  const loader      = document.getElementById('loader');
+  const loaderCount = document.getElementById('loader-count');
+  const loaderBar   = document.getElementById('loader-bar-fill');
+  const main        = document.getElementById('main');
+  const nlFabian    = document.getElementById('nl-fabian');
+  const nlTernis    = document.getElementById('nl-ternis');
+  const siteRole    = document.getElementById('site-role');
+  const btnWork     = document.getElementById('btn-work');
+  const btnDomains  = document.getElementById('btn-domains');
+  const btnHire     = document.getElementById('btn-hire');
+  const cursorDot   = document.getElementById('cursor-dot');
 
-/* ========================================
-   Initialization
-======================================== */
-document.addEventListener('DOMContentLoaded', () => {
-    // Detect touch device
-    isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-    
-    // Hide loader after animation
-    setTimeout(() => {
-        loader.classList.add('hidden');
-        document.body.style.overflow = '';
-    }, CONFIG.loaderDuration);
-    
-    // Initialize features
-    if (!isTouchDevice) {
-        initCursorFollower();
-    }
-    initButtonInteractions();
-    initKeyboardNavigation();
-    
-    // Check reduced motion preference
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReducedMotion) {
-        loader.style.display = 'none';
-    }
-});
+  /* ── Motion / touch preference ───────────────── */
+  const reducedMotion = window.matchMedia
+    ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    : false;
 
-/* ========================================
-   Cursor Follower
-======================================== */
-function initCursorFollower() {
-    document.addEventListener('mousemove', (e) => {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
-        
-        // Show cursor follower
-        if (!cursorFollower.classList.contains('visible')) {
-            cursorFollower.classList.add('visible');
-        }
+  const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
+  /* ── Easing functions ─────────────────────────── */
+  function easeInOutCubic(t) {
+    return t < 0.5
+      ? 4 * t * t * t
+      : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  }
+
+  /* ── Format counter number ────────────────────── */
+  function fmtCount(n) {
+    return Math.floor(n).toString().padStart(2, '0');
+  }
+
+  /* ── Set ARIA progress ────────────────────────── */
+  function setProgress(pct) {
+    loader.setAttribute('aria-valuenow', Math.round(pct));
+    loaderCount.textContent = fmtCount(pct);
+    loaderBar.style.width   = pct + '%';
+  }
+
+  /* ── Content reveal ───────────────────────────── */
+  function revealContent() {
+    document.body.classList.add('revealed');
+    main.removeAttribute('aria-hidden');
+    main.classList.add('is-visible');
+
+    nlFabian.classList.add('is-in');
+
+    delay(110, function () {
+      nlTernis.classList.add('is-in');
     });
-    
-    document.addEventListener('mouseleave', () => {
-        cursorFollower.classList.remove('visible');
+
+    delay(340, function () {
+      siteRole.classList.add('is-in');
     });
-    
-    // Smooth cursor animation
-    function animateCursor() {
-        cursorX += (mouseX - cursorX) * CONFIG.cursorSmoothness;
-        cursorY += (mouseY - cursorY) * CONFIG.cursorSmoothness;
-        
-        cursorFollower.style.left = cursorX + 'px';
-        cursorFollower.style.top = cursorY + 'px';
-        
-        requestAnimationFrame(animateCursor);
-    }
-    animateCursor();
-    
-    // Hover effects for buttons
-    const buttons = document.querySelectorAll('.cta-btn');
-    buttons.forEach(btn => {
-        btn.addEventListener('mouseenter', () => {
-            cursorFollower.classList.add('hovering');
-        });
-        btn.addEventListener('mouseleave', () => {
-            cursorFollower.classList.remove('hovering');
-        });
+
+    delay(560, function () { btnWork.classList.add('is-in'); });
+    delay(680, function () { btnDomains.classList.add('is-in'); });
+    delay(800, function () { btnHire.classList.add('is-in'); });
+  }
+
+  /* ── Open loader (shutter) ────────────────────── */
+  function openLoader() {
+    loader.classList.add('split');
+
+    delay(820, function () {
+      loader.hidden = true;
+      revealContent();
     });
-}
+  }
 
-/* ========================================
-   Button Interactions
-======================================== */
-function initButtonInteractions() {
-    // Button 2: 3D Tilt Effect
-    initTiltButton(btnDomains);
-    
-    // Button 3: Slice effect enhancement
-    initSliceButton(btnHire);
-}
+  /* ── Loader animation (RAF) ───────────────────── */
+  var loaderStart = null;
+  var loaderDur   = 1100;
 
-function initTiltButton(button) {
-    if (isTouchDevice) return;
-    
-    button.addEventListener('mousemove', (e) => {
-        const rect = button.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        
-        const centerX = rect.width / 2;
-        const centerY = rect.height / 2;
-        
-        const rotateX = ((y - centerY) / centerY) * -CONFIG.tiltIntensity;
-        const rotateY = ((x - centerX) / centerX) * CONFIG.tiltIntensity;
-        
-        button.style.setProperty('--rotateX', rotateX + 'deg');
-        button.style.setProperty('--rotateY', rotateY + 'deg');
-        button.classList.add('tilted');
-    });
-    
-    button.addEventListener('mouseleave', () => {
-        button.classList.remove('tilted');
-        button.style.setProperty('--rotateX', '0deg');
-        button.style.setProperty('--rotateY', '0deg');
-    });
-}
+  function loaderTick(ts) {
+    if (!loaderStart) loaderStart = ts;
+    var elapsed = ts - loaderStart;
+    var t       = Math.min(elapsed / loaderDur, 1);
+    var eased   = easeInOutCubic(t);
+    var pct     = eased * 100;
 
-function initSliceButton(button) {
-    // Add click ripple effect
-    button.addEventListener('click', (e) => {
-        const rect = button.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        
-        // Create ripple element
-        const ripple = document.createElement('span');
-        ripple.style.cssText = `
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            background: rgba(255, 255, 255, 0.4);
-            border-radius: 50%;
-            left: ${x}px;
-            top: ${y}px;
-            transform: translate(-50%, -50%) scale(0);
-            animation: rippleEffect 0.6s ease-out forwards;
-            pointer-events: none;
-            z-index: 10;
-        `;
-        
-        button.appendChild(ripple);
-        
-        // Remove after animation
-        setTimeout(() => ripple.remove(), 600);
-    });
-    
-    // Add ripple keyframes dynamically
-    if (!document.getElementById('ripple-style')) {
-        const style = document.createElement('style');
-        style.id = 'ripple-style';
-        style.textContent = `
-            @keyframes rippleEffect {
-                to {
-                    transform: translate(-50%, -50%) scale(20);
-                    opacity: 0;
-                }
-            }
-        `;
-        document.head.appendChild(style);
-    }
-}
+    setProgress(pct);
 
-/* ========================================
-   Keyboard Navigation
-======================================== */
-function initKeyboardNavigation() {
-    const buttons = [btnWork, btnDomains, btnHire];
-    
-    buttons.forEach((btn, index) => {
-        btn.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                btn.click();
-            }
-            
-            // Arrow key navigation between buttons
-            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-                e.preventDefault();
-                const nextBtn = buttons[(index + 1) % buttons.length];
-                nextBtn.focus();
-            }
-            
-            if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-                e.preventDefault();
-                const prevBtn = buttons[(index - 1 + buttons.length) % buttons.length];
-                prevBtn.focus();
-            }
-        });
-    });
-}
-
-/* ========================================
-   Viewport Height Fix (Mobile)
-======================================== */
-function setViewportHeight() {
-    const vh = window.innerHeight * 0.01;
-    document.documentElement.style.setProperty('--vh', vh + 'px');
-}
-
-setViewportHeight();
-window.addEventListener('resize', setViewportHeight);
-
-/* ========================================
-   Performance: Pause animations when hidden
-======================================== */
-document.addEventListener('visibilitychange', () => {
-    const floatingElements = document.querySelectorAll('.float-circle');
-    if (document.hidden) {
-        floatingElements.forEach(el => {
-            el.style.animationPlayState = 'paused';
-        });
+    if (t < 1) {
+      requestAnimationFrame(loaderTick);
     } else {
-        floatingElements.forEach(el => {
-            el.style.animationPlayState = 'running';
-        });
+      setProgress(100);
+      delay(200, openLoader);
     }
-});
+  }
+
+  /* ── Tiny helper: setTimeout wrapper ─────────── */
+  function delay(ms, fn) {
+    return setTimeout(fn, ms);
+  }
+
+  /* ─────────────────────────────────────────────
+     CURSOR DOT
+  ───────────────────────────────────────────── */
+  if (!isTouchDevice && !reducedMotion && cursorDot) {
+    var dotX = 0, dotY = 0;
+    var mouseX = 0, mouseY = 0;
+    var dotVisible = false;
+
+    document.addEventListener('mousemove', function (e) {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+
+      if (!dotVisible) {
+        dotVisible = true;
+        cursorDot.classList.add('visible');
+        /* Snap to position on first appearance */
+        dotX = mouseX;
+        dotY = mouseY;
+        cursorDot.style.left = dotX + 'px';
+        cursorDot.style.top  = dotY + 'px';
+      }
+    });
+
+    document.addEventListener('mouseleave', function () {
+      dotVisible = false;
+      cursorDot.classList.remove('visible');
+    });
+
+    /* Smooth lag follow */
+    function animateDot() {
+      var dx = mouseX - dotX;
+      var dy = mouseY - dotY;
+      dotX += dx * 0.18;
+      dotY += dy * 0.18;
+      cursorDot.style.left = dotX + 'px';
+      cursorDot.style.top  = dotY + 'px';
+      requestAnimationFrame(animateDot);
+    }
+    animateDot();
+
+    /* Swell on button hover */
+    [btnWork, btnDomains, btnHire].forEach(function (btn) {
+      if (!btn) return;
+      btn.addEventListener('mouseenter', function () {
+        cursorDot.classList.add('on-btn');
+      });
+      btn.addEventListener('mouseleave', function () {
+        cursorDot.classList.remove('on-btn');
+      });
+    });
+  }
+
+  /* ─────────────────────────────────────────────
+     3D TILT — Scroll Domains
+  ───────────────────────────────────────────── */
+  if (!isTouchDevice && !reducedMotion && btnDomains) {
+    var TILT = 10; /* max degrees */
+
+    btnDomains.addEventListener('mousemove', function (e) {
+      var rect    = btnDomains.getBoundingClientRect();
+      var cx      = rect.left + rect.width  / 2;
+      var cy      = rect.top  + rect.height / 2;
+      var rx      = ((e.clientY - cy) / (rect.height / 2)) * -TILT;
+      var ry      = ((e.clientX - cx) / (rect.width  / 2)) *  TILT;
+
+      btnDomains.style.setProperty('--rx', rx.toFixed(2) + 'deg');
+      btnDomains.style.setProperty('--ry', ry.toFixed(2) + 'deg');
+      btnDomains.classList.add('is-tilted');
+    });
+
+    btnDomains.addEventListener('mouseleave', function () {
+      btnDomains.classList.remove('is-tilted');
+      btnDomains.style.setProperty('--rx', '0deg');
+      btnDomains.style.setProperty('--ry', '0deg');
+    });
+  }
+
+  /* ─────────────────────────────────────────────
+     CLICK RIPPLE — Hire Me
+  ───────────────────────────────────────────── */
+  if (btnHire) {
+    /* Inject keyframes once */
+    if (!document.getElementById('ripple-kf')) {
+      var style = document.createElement('style');
+      style.id  = 'ripple-kf';
+      style.textContent = '@keyframes _ripple { to { transform: translate(-50%,-50%) scale(22); opacity: 0; } }';
+      document.head.appendChild(style);
+    }
+
+    btnHire.addEventListener('click', function (e) {
+      var rect   = btnHire.getBoundingClientRect();
+      var ripple = document.createElement('span');
+      ripple.style.cssText =
+        'position:absolute;' +
+        'width:10px;height:10px;' +
+        'background:rgba(243,240,232,0.35);' +
+        'border-radius:50%;' +
+        'left:' + (e.clientX - rect.left) + 'px;' +
+        'top:'  + (e.clientY - rect.top)  + 'px;' +
+        'transform:translate(-50%,-50%) scale(0);' +
+        'animation:_ripple 0.55s ease-out forwards;' +
+        'pointer-events:none;z-index:3;';
+      btnHire.appendChild(ripple);
+      setTimeout(function () { ripple.remove(); }, 560);
+    });
+  }
+
+  /* ─────────────────────────────────────────────
+     KEYBOARD: Enter / Space on buttons
+  ───────────────────────────────────────────── */
+  [btnWork, btnDomains, btnHire].forEach(function (btn) {
+    if (!btn) return;
+    btn.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        btn.click();
+      }
+    });
+  });
+
+  /* ── Boot ─────────────────────────────────────── */
+  if (reducedMotion) {
+    if (loader) loader.hidden = true;
+    document.body.classList.add('revealed');
+    main.removeAttribute('aria-hidden');
+    main.classList.add('is-visible');
+    nlFabian.classList.add('is-in');
+    nlTernis.classList.add('is-in');
+    siteRole.classList.add('is-in');
+    btnWork.classList.add('is-in');
+    btnDomains.classList.add('is-in');
+    btnHire.classList.add('is-in');
+  } else {
+    requestAnimationFrame(loaderTick);
+  }
+
+}());
