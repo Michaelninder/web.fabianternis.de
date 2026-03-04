@@ -1,129 +1,163 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Fabian Ternis – German Web Developer. View work, browse domains, or get in touch." />
-  <title>Fabian Ternis — Web Developer</title>
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Fabian Ternis — German Webdeveloper. Portfolio & Contact.">
+    <title>Fabian Ternis — German Webdeveloper</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <!-- Loader -->
-  <div class="loader" id="loader" aria-hidden="true">
-    <div class="loader__line"></div>
-  </div>
-
-  <!-- Noise overlay -->
-  <div class="noise" aria-hidden="true"></div>
-
-  <!-- Grid lines decoration -->
-  <div class="grid-lines" aria-hidden="true">
-    <span></span><span></span><span></span><span></span>
-  </div>
-
-  <!-- Main content -->
-  <main class="main" id="main">
-
-    <!-- Top label -->
-    <div class="label label--top">
-      <span class="label__dot"></span>
-      <span class="label__text" data-reveal>Portfolio — 2026</span>
+    <!-- ═══════════════════════════════════════
+         INTRO CURTAIN
+    ═══════════════════════════════════════ -->
+    <div class="curtain" id="curtain" aria-hidden="true">
+        <div class="curtain__panel curtain__panel--a"></div>
+        <div class="curtain__panel curtain__panel--b"></div>
+        <div class="curtain__counter" id="curtainCounter">00</div>
     </div>
 
-    <!-- Hero section -->
-    <section class="hero" aria-labelledby="hero-name">
+    <!-- ═══════════════════════════════════════
+         GRAIN OVERLAY
+    ═══════════════════════════════════════ -->
+    <div class="grain" aria-hidden="true"></div>
 
-      <div class="hero__name-wrap">
-        <h1 class="hero__name" id="hero-name">
-          <span class="hero__name-line" data-reveal data-delay="0">Fabian</span>
-          <span class="hero__name-line hero__name-line--accent" data-reveal data-delay="1">Ternis</span>
-        </h1>
-        <div class="hero__rule" data-reveal data-delay="2" aria-hidden="true"></div>
-        <p class="hero__subtitle" data-reveal data-delay="3">
-          <span class="hero__subtitle-text">German&nbsp;Webdeveloper</span>
-        </p>
-      </div>
+    <!-- ═══════════════════════════════════════
+         AMBIENT GLOW
+    ═══════════════════════════════════════ -->
+    <div class="ambient" aria-hidden="true"></div>
 
-    </section>
-
-    <!-- CTA section -->
-    <nav class="cta-nav" aria-label="Quick actions" data-reveal data-delay="4">
-
-      <!-- Button 1: View Work -->
-      <a
-        href="https://work.fabianternis.dev"
-        class="cta cta--work"
-        aria-label="View my work"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <span class="cta__bg-sweep" aria-hidden="true"></span>
-        <span class="cta__corner cta__corner--tl" aria-hidden="true"></span>
-        <span class="cta__corner cta__corner--br" aria-hidden="true"></span>
-        <span class="cta__inner">
-          <!-- Lucide: Layers icon -->
-          <svg class="cta__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <polygon points="12 2 2 7 12 12 22 7 12 2"/>
-            <polyline points="2 17 12 22 22 17"/>
-            <polyline points="2 12 12 17 22 12"/>
-          </svg>
-          <span class="cta__label">View Work</span>
-        </span>
-        <span class="cta__scan" aria-hidden="true"></span>
-      </a>
-
-      <!-- Button 2: Scroll Domains -->
-      <a
-        href="https://domainlist.fabianternis.de"
-        class="cta cta--domains"
-        aria-label="Scroll domains list"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <span class="cta__shutter cta__shutter--top" aria-hidden="true"></span>
-        <span class="cta__shutter cta__shutter--bot" aria-hidden="true"></span>
-        <span class="cta__inner">
-          <!-- Lucide: Globe icon -->
-          <svg class="cta__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <circle cx="12" cy="12" r="10"/>
-            <line x1="2" y1="12" x2="22" y2="12"/>
-            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-          </svg>
-          <span class="cta__label">Scroll Domains</span>
-        </span>
-      </a>
-
-      <!-- Button 3: Hire Me -->
-      <a
-        href="https://pleasehireme.eu"
-        class="cta cta--hire"
-        aria-label="Hire Fabian Ternis"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <span class="cta__pulse" aria-hidden="true"></span>
-        <span class="cta__inner">
-          <!-- Lucide: UserCheck icon -->
-          <svg class="cta__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
-            <circle cx="9" cy="7" r="4"/>
-            <polyline points="16 11 18 13 22 9"/>
-          </svg>
-          <span class="cta__label">Hire Me</span>
-        </span>
-      </a>
-
-    </nav>
-
-    <!-- Bottom label -->
-    <div class="label label--bottom" data-reveal data-delay="5">
-      <span class="label__text">web.fabianternis.de</span>
-      <span class="label__dot"></span>
+    <!-- ═══════════════════════════════════════
+         BACKGROUND GRID LINES
+    ═══════════════════════════════════════ -->
+    <div class="gridlines" aria-hidden="true" id="gridlines">
+        <span></span><span></span><span></span><span></span><span></span>
     </div>
 
-  </main>
+    <!-- ═══════════════════════════════════════
+         MAIN PAGE
+    ═══════════════════════════════════════ -->
+    <main class="page">
 
-  <script src="script.js"></script>
+        <!-- Top eyebrow bar -->
+        <div class="eyebrow" id="eyebrow" aria-hidden="true">
+            <span class="eyebrow__tag">Portfolio</span>
+            <span class="eyebrow__divider"></span>
+            <span class="eyebrow__tag">2026</span>
+            <span class="eyebrow__spacer"></span>
+            <span class="eyebrow__tag eyebrow__tag--right">web.fabianternis.de</span>
+        </div>
+
+        <!-- ─── HERO ─── -->
+        <section class="hero" id="hero">
+
+            <h1 class="name" id="heroName" aria-label="Fabian Ternis">
+                <span class="name__row name__row--a" aria-hidden="true">
+                    <span class="nc" style="--i:0">F</span><span
+                        class="nc" style="--i:1">a</span><span
+                        class="nc" style="--i:2">b</span><span
+                        class="nc" style="--i:3">i</span><span
+                        class="nc" style="--i:4">a</span><span
+                        class="nc" style="--i:5">n</span>
+                </span>
+                <span class="name__row name__row--b" aria-hidden="true">
+                    <span class="nc" style="--i:6">T</span><span
+                        class="nc" style="--i:7">e</span><span
+                        class="nc" style="--i:8">r</span><span
+                        class="nc" style="--i:9">n</span><span
+                        class="nc" style="--i:10">i</span><span
+                        class="nc" style="--i:11">s</span>
+                </span>
+            </h1>
+
+            <div class="subtitle" id="heroSubtitle">
+                <span class="subtitle__mark" aria-hidden="true">—</span>
+                <span class="subtitle__text">German Webdeveloper</span>
+            </div>
+
+        </section>
+
+        <!-- ─── BUTTONS ─── -->
+        <nav class="cta" id="ctaNav" aria-label="Main navigation">
+
+            <!-- BUTTON 1: VIEW WORK — Liquid gold fill sweep -->
+            <a href="https://work.fabianternis.dev"
+               class="btn btn--work"
+               target="_blank"
+               rel="noopener noreferrer"
+               aria-label="View Work — opens in new tab">
+                <span class="btn__bg" aria-hidden="true"></span>
+                <span class="btn__text">View Work</span>
+                <span class="btn__icon" aria-hidden="true">
+                    <!-- Arrow right (heroicons style, inline) -->
+                    <svg width="16" height="16" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor"
+                         stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 12h14"/>
+                        <path d="M12 5l7 7-7 7"/>
+                    </svg>
+                </span>
+            </a>
+
+            <!-- BUTTON 2: SCROLL DOMAINS — Traced border + text scramble -->
+            <a href="https://domainlist.fabianternis.de"
+               class="btn btn--domains"
+               target="_blank"
+               rel="noopener noreferrer"
+               aria-label="Scroll Domains — opens in new tab"
+               data-original="Scroll Domains">
+                <!-- Animated SVG border (sized via JS) -->
+                <svg class="btn__trace" aria-hidden="true">
+                    <rect class="trace__rect" x="0.5" y="0.5" rx="1.5" ry="1.5"/>
+                </svg>
+                <span class="btn__icon" aria-hidden="true">
+                    <!-- Globe icon -->
+                    <svg width="15" height="15" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor"
+                         stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                        <line x1="2" y1="12" x2="22" y2="12"/>
+                    </svg>
+                </span>
+                <span class="btn__text" id="domainsText">Scroll Domains</span>
+            </a>
+
+            <!-- BUTTON 3: HIRE ME — Pulse rings + availability dot -->
+            <a href="https://pleasehireme.eu"
+               class="btn btn--hire"
+               target="_blank"
+               rel="noopener noreferrer"
+               aria-label="Hire Me — opens in new tab">
+                <!-- Expanding rings (animated on hover) -->
+                <span class="hire__rings" aria-hidden="true">
+                    <span class="hire__ring" style="--d:0s"></span>
+                    <span class="hire__ring" style="--d:.25s"></span>
+                    <span class="hire__ring" style="--d:.5s"></span>
+                </span>
+                <span class="hire__dot" aria-hidden="true"></span>
+                <span class="btn__text">Hire Me</span>
+                <!-- Starburst icon -->
+                <span class="btn__icon hire__star" aria-hidden="true">
+                    <svg width="14" height="14" viewBox="0 0 24 24"
+                         fill="currentColor" stroke="none">
+                        <path d="M12 2l1.5 7.5L21 12l-7.5 1.5L12 21l-1.5-7.5L3 12l7.5-1.5z"/>
+                    </svg>
+                </span>
+            </a>
+
+        </nav>
+
+        <!-- Footer domain label -->
+        <footer class="page-footer" id="pageFooter">
+            <span class="page-footer__url">web.fabianternis.de</span>
+            <span class="page-footer__sep"> · </span>
+            <span class="page-footer__url">web.fabianternis.dev</span>
+        </footer>
+
+    </main>
+
+    <script src="script.js"></script>
 </body>
 </html>

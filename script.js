@@ -1,183 +1,254 @@
+/* ============================================================
+   FABIAN TERNIS — PORTFOLIO
+   script.js · Animations & Interactions
+   ============================================================ */
+
+'use strict';
+
+/* ────────────────────────────────────────────────────────────
+   UTILITY
+   ──────────────────────────────────────────────────────────── */
+
 /**
- * Fabian Ternis — Portfolio
- * Handles: loader dismissal, staggered reveal, cursor, scroll hint
+ * Pad a number to two digits, e.g. 7 → "07".
  */
+const pad2 = n => String(Math.floor(n)).padStart(2, '0');
 
-(function () {
-  'use strict';
+/**
+ * Schedule a one-shot callback after `ms` milliseconds.
+ */
+const after = (ms, fn) => setTimeout(fn, ms);
 
-  /* ── Config ──────────────────────────────────────────────── */
-  const LOADER_DURATION  = 950;  // ms — matches CSS loader animation
-  const REVEAL_BASE_MS   = 80;   // ms per stagger step
-  const REVEAL_DELAY_MS  = 160;  // delay multiplier between items
+/* ────────────────────────────────────────────────────────────
+   LOADING COUNTER ANIMATION
+   Races from 0 → 100 with an eased curve before the curtain
+   opens, giving the impression of real loading work.
+   ──────────────────────────────────────────────────────────── */
 
-  /* ── Elements ────────────────────────────────────────────── */
-  const loader  = document.getElementById('loader');
-  const reveals = [];            // filled on DOMContentLoaded
+function runCounter(el, duration, onComplete) {
+    const start = performance.now();
 
-  /* ── Utility: stagger reveal ─────────────────────────────── */
-  function scheduleReveal(el, delayIndex) {
-    const base   = LOADER_DURATION + 100;
-    const offset = delayIndex * REVEAL_DELAY_MS;
-    setTimeout(() => {
-      el.classList.add('is-visible');
-    }, base + offset);
-  }
+    const tick = (now) => {
+        const elapsed = now - start;
+        const raw     = Math.min(elapsed / duration, 1);
+        // Ease-out quad — fast at first, slows near 100
+        const eased   = 1 - Math.pow(1 - raw, 2.2);
+        const value   = Math.floor(eased * 100);
 
-  /* ── Dismiss loader ──────────────────────────────────────── */
-  function dismissLoader() {
-    setTimeout(() => {
-      loader.classList.add('is-done');
-    }, LOADER_DURATION);
-  }
+        el.textContent = pad2(value);
 
-  /* ── Main init (DOMContentLoaded) ────────────────────────── */
-  document.addEventListener('DOMContentLoaded', () => {
+        if (raw < 1) {
+            requestAnimationFrame(tick);
+        } else {
+            el.textContent = '100';
+            onComplete();
+        }
+    };
 
-    // 1. Start loader dismiss sequence
-    dismissLoader();
+    requestAnimationFrame(tick);
+}
 
-    // 2. Collect all [data-reveal] elements in DOM order
-    const revealEls = document.querySelectorAll('[data-reveal]');
+/* ────────────────────────────────────────────────────────────
+   TEXT SCRAMBLE
+   Progressively reveals text while filling unrevealed
+   characters with random glyphs — a classic hacker effect.
+   ──────────────────────────────────────────────────────────── */
 
-    revealEls.forEach((el) => {
-      const delayAttr = el.getAttribute('data-delay');
-      const delay     = delayAttr !== null ? parseInt(delayAttr, 10) : reveals.length;
-      reveals.push({ el, delay });
+const SCRAMBLE_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$·%—';
+
+function scrambleText(el, target, duration, onDone) {
+    const len   = target.length;
+    let   start = null;
+    let   raf   = null;
+
+    function tick(timestamp) {
+        if (!start) start = timestamp;
+
+        const progress  = Math.min((timestamp - start) / duration, 1);
+        const revealed  = Math.floor(progress * len);
+        let   result    = '';
+
+        for (let i = 0; i < len; i++) {
+            if (i < revealed) {
+                result += target[i];
+            } else {
+                result += SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
+            }
+        }
+
+        el.textContent = result;
+
+        if (progress < 1) {
+            raf = requestAnimationFrame(tick);
+        } else {
+            el.textContent = target;
+            if (typeof onDone === 'function') onDone();
+        }
+    }
+
+    raf = requestAnimationFrame(tick);
+
+    return () => { if (raf) cancelAnimationFrame(raf); };
+}
+
+/* ────────────────────────────────────────────────────────────
+   DOMAINS BUTTON — BORDER TRACE + TEXT SCRAMBLE
+   ──────────────────────────────────────────────────────────── */
+
+function initDomainsButton() {
+    const btn      = document.querySelector('.btn--domains');
+    const textEl   = document.getElementById('domainsText');
+    const traceEl  = btn.querySelector('.trace__rect');
+    const svgEl    = btn.querySelector('.btn__trace');
+
+    if (!btn || !textEl || !traceEl) return;
+
+    const originalText = btn.dataset.original || textEl.textContent;
+    let   cancelScramble = null;
+
+    /* ── Size the SVG rect to match the button exactly ── */
+    function syncBorder() {
+        const w = btn.offsetWidth;
+        const h = btn.offsetHeight;
+
+        svgEl.setAttribute('viewBox', `0 0 ${w} ${h}`);
+        traceEl.setAttribute('width',  w - 1);
+        traceEl.setAttribute('height', h - 1);
+
+        // Perimeter = total length of the closed rectangle path
+        const perimeter = 2 * ((w - 1) + (h - 1));
+        traceEl.setAttribute('stroke-dasharray',  perimeter);
+        traceEl.setAttribute('stroke-dashoffset', perimeter); // starts hidden
+        traceEl.style.strokeDasharray  = perimeter;
+        traceEl.style.strokeDashoffset = perimeter;
+    }
+
+    syncBorder();
+
+    // Re-sync on resize
+    const ro = new ResizeObserver(syncBorder);
+    ro.observe(btn);
+
+    /* ── Mouse enter: draw the border + scramble text ── */
+    btn.addEventListener('mouseenter', () => {
+        // Animate the stroke-dashoffset to 0 (draws the full perimeter)
+        traceEl.style.transition       = 'stroke-dashoffset 0.65s cubic-bezier(0.16, 1, 0.3, 1)';
+        traceEl.style.strokeDashoffset = '0';
+
+        // Cancel any in-flight scramble and start a new one
+        if (cancelScramble) cancelScramble();
+        cancelScramble = scrambleText(textEl, originalText, 620);
     });
 
-    // 3. Schedule each reveal
-    reveals.forEach(({ el, delay }) => {
-      scheduleReveal(el, delay);
+    /* ── Mouse leave: retrace back + restore text cleanly ── */
+    btn.addEventListener('mouseleave', () => {
+        const dash = traceEl.style.strokeDasharray;
+        traceEl.style.transition       = 'stroke-dashoffset 0.4s cubic-bezier(0.87, 0, 0.13, 1)';
+        traceEl.style.strokeDashoffset = dash; // hide again
+
+        if (cancelScramble) { cancelScramble(); cancelScramble = null; }
+        textEl.textContent = originalText;
     });
+}
 
-    // 4. CTA: add letter-by-letter data only (animation is CSS-driven)
-    initCTALetters();
+/* ────────────────────────────────────────────────────────────
+   PAGE LOAD SEQUENCE
+   Curtain → counter → reveal → stagger elements in
+   ──────────────────────────────────────────────────────────── */
 
-    // 5. Custom cursor dot
-    initCursor();
+function initLoadSequence() {
+    const curtain  = document.getElementById('curtain');
+    const counter  = document.getElementById('curtainCounter');
+    const gridlines = document.getElementById('gridlines');
+    const eyebrow  = document.querySelector('.eyebrow');
+    const nameEl   = document.getElementById('heroName');
+    const subtitle = document.getElementById('heroSubtitle');
+    const cta      = document.getElementById('ctaNav');
+    const footer   = document.querySelector('.page-footer');
 
-    // 6. Keyboard shortcut hints (optional accessible tooltip on focus)
-    initFocusIndicators();
-  });
+    // Step 1 — Run the loading counter (0 → 100 over ~900ms)
+    runCounter(counter, 900, () => {
 
-  /* ── Split label text into hoverable chars (CTA labels) ─── */
-  function initCTALetters() {
-    // Wrap each letter in a span so CSS :nth-child can stagger them
-    document.querySelectorAll('.cta__label').forEach((label) => {
-      const text = label.textContent;
-      label.textContent = '';
-      label.setAttribute('aria-label', text); // preserve a11y
+        // Step 2 — Fade out the counter, then open the curtain
+        counter.classList.add('hidden');
 
-      [...text].forEach((char, i) => {
-        const span = document.createElement('span');
-        span.classList.add('cta__char');
-        span.textContent = char === ' ' ? '\u00A0' : char;
-        span.style.setProperty('--i', i);
-        span.setAttribute('aria-hidden', 'true');
-        label.appendChild(span);
-      });
-    });
+        after(200, () => {
+            curtain.classList.add('is-open');
 
-    // Inject the per-char animation CSS dynamically
-    injectCharStyles();
-  }
+            // Trigger gridlines after curtain starts opening
+            after(400, () => {
+                gridlines.classList.add('visible');
+            });
 
-  function injectCharStyles() {
-    const style = document.createElement('style');
-    style.textContent = `
-      .cta__char {
-        display: inline-block;
-        transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1),
-                    color 0.25s ease;
-        transition-delay: calc(var(--i) * 0.028s);
-      }
-      .cta--work:hover .cta__char {
-        transform: translateY(-2px);
-        color: #d4a853;
-      }
-      .cta--domains:hover .cta__char {
-        transform: translateY(-3px) scale(1.05);
-        transition-delay: calc(var(--i) * 0.035s);
-      }
-      .cta--hire:hover .cta__char {
-        transform: translateY(-2px) rotate(-1deg);
-        color: #3dba72;
-        transition-delay: calc(var(--i) * 0.03s);
-      }
-    `;
-    document.head.appendChild(style);
-  }
+            // Step 3 — Show eyebrow bar
+            after(600, () => {
+                eyebrow.classList.add('visible');
+            });
 
-  /* ── Minimal crosshair cursor dot ───────────────────────── */
-  function initCursor() {
-    // Only on pointer devices
-    if (!window.matchMedia('(pointer: fine)').matches) return;
+            // Step 4 — Animate name characters in
+            after(700, () => {
+                const chars = nameEl.querySelectorAll('.nc');
+                chars.forEach(c => c.classList.add('show'));
+            });
 
-    const dot = document.createElement('div');
-    dot.setAttribute('aria-hidden', 'true');
-    Object.assign(dot.style, {
-      position: 'fixed',
-      top: '0', left: '0',
-      width: '6px', height: '6px',
-      borderRadius: '50%',
-      background: 'rgba(212,168,83,0.9)',
-      pointerEvents: 'none',
-      zIndex: '9999',
-      transform: 'translate(-50%,-50%)',
-      transition: 'transform 0.12s ease, background 0.25s ease',
-      willChange: 'transform',
-    });
-    document.body.appendChild(dot);
+            // Step 5 — Subtitle
+            after(1300, () => {
+                subtitle.classList.add('visible');
+            });
 
-    let mx = -100, my = -100;
-    let rafId;
+            // Step 6 — CTA buttons
+            after(1750, () => {
+                cta.classList.add('visible');
+            });
 
-    document.addEventListener('mousemove', (e) => {
-      mx = e.clientX;
-      my = e.clientY;
-      if (!rafId) {
-        rafId = requestAnimationFrame(() => {
-          dot.style.left = mx + 'px';
-          dot.style.top  = my + 'px';
-          rafId = null;
+            // Step 7 — Footer + unlock scroll
+            after(2200, () => {
+                footer.classList.add('visible');
+                after(300, () => document.body.classList.add('ready'));
+            });
         });
-      }
     });
+}
 
-    // Enlarge dot on interactive elements
-    const interactives = 'a, button, [tabindex]';
-    document.querySelectorAll(interactives).forEach((el) => {
-      el.addEventListener('mouseenter', () => {
-        dot.style.transform = 'translate(-50%,-50%) scale(2.5)';
-        dot.style.background = 'rgba(212,168,83,0.5)';
-        dot.style.outline = '1px solid rgba(212,168,83,0.6)';
-      });
-      el.addEventListener('mouseleave', () => {
-        dot.style.transform = 'translate(-50%,-50%) scale(1)';
-        dot.style.background = 'rgba(212,168,83,0.9)';
-        dot.style.outline = '';
-      });
+/* ────────────────────────────────────────────────────────────
+   CURSOR MAGNETIC EFFECT
+   Buttons gently attract toward the mouse pointer for a
+   tactile, premium feel (subtle — never exceeds ±8px).
+   ──────────────────────────────────────────────────────────── */
+
+function initMagneticButtons() {
+    const MAX_SHIFT = 8; // px
+
+    document.querySelectorAll('.btn').forEach(btn => {
+        btn.addEventListener('mousemove', e => {
+            const rect   = btn.getBoundingClientRect();
+            const cx     = rect.left + rect.width  / 2;
+            const cy     = rect.top  + rect.height / 2;
+            const dx     = (e.clientX - cx) / (rect.width  / 2);
+            const dy     = (e.clientY - cy) / (rect.height / 2);
+
+            btn.style.transform = `translate(${dx * MAX_SHIFT}px, ${dy * MAX_SHIFT}px)`;
+        });
+
+        btn.addEventListener('mouseleave', () => {
+            btn.style.transition = 'transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.35s ease, border-color 0.35s ease, box-shadow 0.45s ease, background 0.45s ease';
+            btn.style.transform  = 'translate(0, 0)';
+            // Reset transition to default after spring settles
+            after(500, () => { btn.style.transition = ''; });
+        });
+
+        btn.addEventListener('mouseenter', () => {
+            btn.style.transition = 'transform 0.15s ease, color 0.35s ease, border-color 0.35s ease, box-shadow 0.45s ease, background 0.45s ease';
+        });
     });
-  }
+}
 
-  /* ── Focus indicators for keyboard navigation ───────────── */
-  function initFocusIndicators() {
-    // Only show ring when using keyboard
-    let usingKeyboard = false;
+/* ────────────────────────────────────────────────────────────
+   BOOT
+   ──────────────────────────────────────────────────────────── */
 
-    document.addEventListener('keydown', () => { usingKeyboard = true; });
-    document.addEventListener('mousedown', () => { usingKeyboard = false; });
-
-    document.querySelectorAll('.cta').forEach((cta) => {
-      cta.addEventListener('focus', () => {
-        if (!usingKeyboard) return;
-        cta.style.outlineOffset = '4px';
-      });
-      cta.addEventListener('blur', () => {
-        cta.style.outlineOffset = '';
-      });
-    });
-  }
-
-})();
+document.addEventListener('DOMContentLoaded', () => {
+    initLoadSequence();
+    initDomainsButton();
+    initMagneticButtons();
+});
