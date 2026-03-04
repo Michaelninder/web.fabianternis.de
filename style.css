@@ -1,471 +1,615 @@
 /* ============================================================
    FABIAN TERNIS — PORTFOLIO
-   Aesthetic: Refined Dark Editorial / German Engineering Precision
+   style.css · Modern Landing Page
    ============================================================ */
 
-/* ── Reset & Variables ─────────────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-:root {
-  --bg:        #080808;
-  --surface:   #111111;
-  --border:    rgba(255,255,255,0.08);
-  --text:      #ede8e0;
-  --muted:     rgba(237,232,224,0.38);
-  --gold:      #d4a853;
-  --gold-dim:  rgba(212,168,83,0.15);
-  --rust:      #c04a2a;
-  --green:     #3dba72;
-  --green-dim: rgba(61,186,114,0.12);
-
-  --ease-expo: cubic-bezier(0.19, 1, 0.22, 1);
-  --ease-back: cubic-bezier(0.34, 1.56, 0.64, 1);
-
-  --font-display: Georgia, 'Times New Roman', serif;
-  --font-mono:    'Courier New', Courier, monospace;
+/* ── Reset ── */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
-html { scroll-behavior: smooth; }
+/* ── Design Tokens ── */
+:root {
+    /* Palette */
+    --bg:          #06070c;
+    --bg-warm:     #0b0d15;
+    --gold:        #c9a96b;
+    --gold-lt:     #e8cc96;
+    --gold-dk:     #7a6535;
+    --gold-alpha:  rgba(201, 169, 107, 0.15);
+    --text:        #ede9e0;
+    --text-dim:    rgba(237, 233, 224, 0.42);
+    --text-ghost:  rgba(237, 233, 224, 0.1);
+    --line:        rgba(237, 233, 224, 0.07);
+
+    /* Typography */
+    --font-serif: "Palatino Linotype", "Palatino", "Book Antiqua", Georgia, serif;
+    --font-mono:  "Courier New", Courier, monospace;
+    --font-ui:    "Trebuchet MS", "Gill Sans", "Gill Sans MT", Arial, sans-serif;
+
+    /* Size scale */
+    --name-sz:    clamp(4.5rem, 14vw, 13rem);
+    --sub-sz:     clamp(0.72rem, 1.4vw, 1rem);
+    --btn-sz:     clamp(0.65rem, 1.1vw, 0.82rem);
+    --pad-x:      clamp(1.8rem, 6vw, 5rem);
+    --pad-y:      clamp(2rem,  5vh, 3.5rem);
+
+    /* Easings */
+    --ease-expo:  cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-back:  cubic-bezier(0.34, 1.56, 0.64, 1);
+    --ease-sharp: cubic-bezier(0.87, 0, 0.13, 1);
+}
+
+/* ── Base ── */
+html {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
 
 body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font-mono);
-  min-height: 100dvh;
-  overflow: hidden;
-  cursor: crosshair;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100svh;
+    overflow: hidden;
+    font-family: var(--font-ui);
 }
 
-/* ── Noise Overlay ─────────────────────────────────────────── */
-.noise {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 100;
-  opacity: 0.035;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-repeat: repeat;
-  background-size: 200px 200px;
+body.ready {
+    overflow: auto;
 }
 
-/* ── Grid Lines ────────────────────────────────────────────── */
-.grid-lines {
-  position: fixed;
-  inset: 0;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  pointer-events: none;
-  z-index: 0;
-}
-.grid-lines span {
-  border-right: 1px solid var(--border);
-}
-.grid-lines span:first-child {
-  border-left: 1px solid var(--border);
+a {
+    color: inherit;
+    text-decoration: none;
 }
 
-/* ── Loader ────────────────────────────────────────────────── */
-.loader {
-  position: fixed;
-  inset: 0;
-  z-index: 200;
-  background: var(--bg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: opacity 0.6s var(--ease-expo) 0.1s, visibility 0.6s 0.1s;
-}
-
-.loader.is-done {
-  opacity: 0;
-  visibility: hidden;
-}
-
-.loader__line {
-  width: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--gold), transparent);
-  animation: loaderLine 1s var(--ease-expo) 0.1s forwards;
-  box-shadow: 0 0 12px var(--gold);
-}
-
-@keyframes loaderLine {
-  0%   { width: 0; opacity: 1; }
-  60%  { width: 60vw; opacity: 1; }
-  100% { width: 60vw; opacity: 0; }
-}
-
-/* ── Main Layout ───────────────────────────────────────────── */
-.main {
-  position: relative;
-  z-index: 10;
-  min-height: 100dvh;
-  display: grid;
-  grid-template-rows: auto 1fr auto auto;
-  padding: clamp(1.5rem, 4vw, 3rem) clamp(1.5rem, 6vw, 5rem);
-  gap: clamp(2rem, 4vw, 3.5rem);
-}
-
-/* ── Labels ────────────────────────────────────────────────── */
-.label {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  font-size: 0.68rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-.label--bottom {
-  justify-content: flex-end;
-}
-.label__dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--gold);
-  flex-shrink: 0;
-  animation: pulse 2.4s ease-in-out infinite;
-}
-@keyframes pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50%       { opacity: 0.4; transform: scale(0.6); }
-}
-
-/* ── Reveal animation base ─────────────────────────────────── */
-[data-reveal] {
-  opacity: 0;
-  transform: translateY(22px);
-  transition: opacity 0.9s var(--ease-expo), transform 0.9s var(--ease-expo);
-}
-[data-reveal].is-visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* ── Hero ──────────────────────────────────────────────────── */
-.hero {
-  display: flex;
-  align-items: center;
-}
-
-.hero__name-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: clamp(0.6rem, 1.5vw, 1.1rem);
-}
-
-.hero__name {
-  font-family: var(--font-display);
-  font-size: clamp(4.5rem, 14vw, 13rem);
-  font-weight: 700;
-  line-height: 0.9;
-  letter-spacing: -0.03em;
-  user-select: none;
-}
-
-.hero__name-line {
-  display: block;
-  overflow: hidden;
-}
-.hero__name-line--accent {
-  color: var(--gold);
-  -webkit-text-stroke: 0;
-}
-
-.hero__rule {
-  width: 0;
-  height: 1px;
-  background: var(--border);
-  transition: width 1.2s var(--ease-expo) 0.3s;
-}
-.hero__rule.is-visible {
-  width: 100%;
-}
-/* Override generic reveal for rule */
-.hero__rule[data-reveal] {
-  transform: none;
-}
-
-.hero__subtitle {
-  font-size: clamp(0.75rem, 1.4vw, 1rem);
-  letter-spacing: 0.32em;
-  text-transform: uppercase;
-  color: var(--muted);
-  overflow: hidden;
-}
-
-.hero__subtitle-text {
-  display: block;
-}
-
-/* ── CTA Nav ───────────────────────────────────────────────── */
-.cta-nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: clamp(0.75rem, 2vw, 1.25rem);
-  align-items: flex-start;
-}
-
-/* ── CTA Base ──────────────────────────────────────────────── */
-.cta {
-  position: relative;
-  display: inline-flex;
-  text-decoration: none;
-  color: var(--text);
-  font-family: var(--font-mono);
-  font-size: clamp(0.72rem, 1.1vw, 0.85rem);
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  overflow: hidden;
-  transition: color 0.3s ease;
-  -webkit-tap-highlight-color: transparent;
-  cursor: crosshair;
-}
-
-.cta__inner {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-  padding: 0.85rem 1.6rem;
-  transition: transform 0.3s var(--ease-expo), gap 0.3s var(--ease-expo);
-}
-
-.cta__icon {
-  flex-shrink: 0;
-  transition: transform 0.4s var(--ease-back);
-}
-
-.cta__label {
-  position: relative;
-}
-
-/* ───────────────────────────────────────────────
-   CTA 1 — VIEW WORK
-   Mechanic: scanning line sweep + corner brackets extend
-   ─────────────────────────────────────────────── */
-.cta--work {
-  border: 1px solid rgba(212,168,83,0.35);
-  background: transparent;
-  color: var(--gold);
-}
-
-/* Sweep fill */
-.cta--work .cta__bg-sweep {
-  position: absolute;
-  inset: 0;
-  background: var(--gold-dim);
-  transform: scaleX(0);
-  transform-origin: left center;
-  transition: transform 0.5s var(--ease-expo);
-  z-index: 1;
-}
-
-/* Scan line */
-.cta--work .cta__scan {
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 40%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(212,168,83,0.5), transparent);
-  z-index: 3;
-  transition: none;
-  pointer-events: none;
-}
-
-/* Corner brackets */
-.cta__corner {
-  position: absolute;
-  width: 8px;
-  height: 8px;
-  z-index: 4;
-  transition: width 0.3s var(--ease-expo) 0.05s,
-              height 0.3s var(--ease-expo) 0.05s;
-}
-.cta__corner--tl {
-  top: -1px; left: -1px;
-  border-top: 2px solid var(--gold);
-  border-left: 2px solid var(--gold);
-}
-.cta__corner--br {
-  bottom: -1px; right: -1px;
-  border-bottom: 2px solid var(--gold);
-  border-right: 2px solid var(--gold);
-}
-
-/* Work hover states */
-.cta--work:hover .cta__bg-sweep {
-  transform: scaleX(1);
-}
-.cta--work:hover .cta__scan {
-  animation: scanSlide 0.7s var(--ease-expo) forwards;
-}
-.cta--work:hover .cta__corner {
-  width: 14px;
-  height: 14px;
-}
-.cta--work:hover .cta__icon {
-  transform: rotate(-8deg) scale(1.15);
-}
-.cta--work:focus-visible {
-  outline: 2px solid var(--gold);
-  outline-offset: 3px;
-}
-
-@keyframes scanSlide {
-  0%   { left: -40%; }
-  100% { left: 130%; }
-}
-
-/* ───────────────────────────────────────────────
-   CTA 2 — SCROLL DOMAINS
-   Mechanic: top/bottom shutters part open like a lens iris
-   text floats upward
-   ─────────────────────────────────────────────── */
-.cta--domains {
-  border: 1px solid rgba(255,255,255,0.12);
-  background: rgba(255,255,255,0.03);
-}
-
-.cta--domains .cta__shutter {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 50%;
-  background: #1a1a1a;
-  z-index: 3;
-  transition: transform 0.45s var(--ease-expo);
-  pointer-events: none;
-}
-.cta__shutter--top {
-  top: 0;
-  transform: translateY(0%);
-}
-.cta__shutter--bot {
-  bottom: 0;
-  transform: translateY(0%);
-}
-
-.cta--domains:hover .cta__shutter--top {
-  transform: translateY(-105%);
-}
-.cta--domains:hover .cta__shutter--bot {
-  transform: translateY(105%);
-}
-.cta--domains:hover {
-  color: #fff;
-  background: rgba(255,255,255,0.06);
-  border-color: rgba(255,255,255,0.3);
-}
-.cta--domains:hover .cta__inner {
-  transform: translateY(-2px);
-}
-.cta--domains:hover .cta__icon {
-  animation: globeSpin 1.2s var(--ease-expo) forwards;
-}
-.cta--domains:focus-visible {
-  outline: 2px solid rgba(255,255,255,0.5);
-  outline-offset: 3px;
-}
-
-@keyframes globeSpin {
-  0%   { transform: rotate(0deg) scale(1); }
-  40%  { transform: rotate(180deg) scale(1.2); }
-  100% { transform: rotate(360deg) scale(1); }
-}
-
-/* ───────────────────────────────────────────────
-   CTA 3 — HIRE ME
-   Mechanic: radial ripple burst + border morphs to pill
-   icon stamp-bounces
-   ─────────────────────────────────────────────── */
-.cta--hire {
-  border: 1px solid rgba(61,186,114,0.4);
-  background: var(--green-dim);
-  color: var(--green);
-  border-radius: 2px;
-  transition: color 0.3s ease, border-radius 0.4s var(--ease-back),
-              border-color 0.3s ease, background 0.3s ease;
-}
-
-/* Pulse ring */
-.cta--hire .cta__pulse {
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  border: 1px solid var(--green);
-  opacity: 0;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.cta--hire:hover {
-  border-radius: 999px;
-  border-color: var(--green);
-  background: rgba(61,186,114,0.18);
-  color: #fff;
-}
-.cta--hire:hover .cta__pulse {
-  animation: hireRipple 0.7s var(--ease-expo) forwards;
-}
-.cta--hire:hover .cta__icon {
-  animation: stampBounce 0.5s var(--ease-back) forwards;
-}
-.cta--hire:hover .cta__inner {
-  gap: 0.75rem;
-}
-.cta--hire:focus-visible {
-  outline: 2px solid var(--green);
-  outline-offset: 3px;
-}
-
-@keyframes hireRipple {
-  0%   { transform: scale(1);    opacity: 0.8; }
-  100% { transform: scale(1.35); opacity: 0; }
-}
-
-@keyframes stampBounce {
-  0%   { transform: scale(1)    rotate(0deg); }
-  30%  { transform: scale(1.4)  rotate(-12deg); }
-  65%  { transform: scale(0.9)  rotate(6deg); }
-  100% { transform: scale(1.1)  rotate(0deg); }
-}
-
-/* ── Responsive ────────────────────────────────────────────── */
-@media (max-width: 640px) {
-  body { overflow-y: auto; }
-  .main {
-    min-height: 100dvh;
-    grid-template-rows: auto 1fr auto auto;
-  }
-  .hero__name {
-    font-size: clamp(3.5rem, 18vw, 6rem);
-  }
-  .cta-nav {
+/* ============================================================
+   INTRO CURTAIN
+   Two panels (top / bottom) that slide open, with a
+   loading counter racing to 100 before revealing the page.
+   ============================================================ */
+.curtain {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    pointer-events: none;
+    display: flex;
     flex-direction: column;
-    align-items: flex-start;
-  }
-  .cta {
-    width: 100%;
-  }
-  .cta__inner {
-    justify-content: center;
-    padding: 1rem 1.6rem;
-  }
-  .grid-lines { display: none; }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-  }
-  [data-reveal] {
+.curtain__panel {
+    flex: 1;
+    background: var(--bg);
+    transition: transform 0.85s var(--ease-sharp);
+    will-change: transform;
+}
+
+.curtain__panel--a { transform-origin: top;    }
+.curtain__panel--b { transform-origin: bottom; }
+
+.curtain.is-open .curtain__panel--a { transform: scaleY(0); }
+.curtain.is-open .curtain__panel--b { transform: scaleY(0); }
+
+.curtain__counter {
+    position: fixed;
+    bottom: var(--pad-y);
+    right: var(--pad-x);
+    font-family: var(--font-mono);
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    font-weight: 400;
+    color: var(--text-ghost);
+    letter-spacing: -0.02em;
+    z-index: 201;
+    user-select: none;
+    transition: opacity 0.4s ease;
+}
+
+.curtain__counter.hidden {
+    opacity: 0;
+}
+
+/* ============================================================
+   GRAIN TEXTURE
+   Animated SVG feTurbulence overlay — filmlike noise.
+   ============================================================ */
+.grain {
+    position: fixed;
+    inset: -150%;
+    width: 400%;
+    height: 400%;
+    z-index: 1;
+    opacity: 0.04;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    animation: grain-drift 0.4s steps(1) infinite;
+}
+
+@keyframes grain-drift {
+    0%   { transform: translate(0, 0); }
+    12%  { transform: translate(-3%, -8%); }
+    25%  { transform: translate(-12%, 4%); }
+    37%  { transform: translate(6%, -20%); }
+    50%  { transform: translate(-4%, 22%); }
+    62%  { transform: translate(-14%, 8%); }
+    75%  { transform: translate(12%, -2%); }
+    87%  { transform: translate(2%, 18%); }
+    100% { transform: translate(-8%, 6%); }
+}
+
+/* ============================================================
+   AMBIENT GLOW
+   Radial center glow — adds depth to the void.
+   ============================================================ */
+.ambient {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 80vmax;
+    height: 80vmax;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(
+        circle at center,
+        rgba(201, 169, 107, 0.045) 0%,
+        rgba(201, 169, 107, 0.01)  35%,
+        transparent 70%
+    );
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* ============================================================
+   BACKGROUND GRID LINES
+   Thin vertical lines — architectural rhythm.
+   ============================================================ */
+.gridlines {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    display: flex;
+    justify-content: space-evenly;
+    pointer-events: none;
+}
+
+.gridlines span {
+    display: block;
+    width: 1px;
+    background: var(--line);
+    opacity: 0;
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: transform 1.2s var(--ease-expo), opacity 0.1s ease;
+}
+
+.gridlines.visible span {
     opacity: 1;
-    transform: none;
-  }
-  .loader { display: none; }
+    transform: scaleY(1);
+}
+
+.gridlines span:nth-child(1) { transition-delay: 1.0s; }
+.gridlines span:nth-child(2) { transition-delay: 1.1s; }
+.gridlines span:nth-child(3) { transition-delay: 1.05s; }
+.gridlines span:nth-child(4) { transition-delay: 1.15s; }
+.gridlines span:nth-child(5) { transition-delay: 1.08s; }
+
+/* ============================================================
+   PAGE LAYOUT
+   ============================================================ */
+.page {
+    position: relative;
+    z-index: 2;
+    min-height: 100svh;
+    display: grid;
+    grid-template-rows: auto 1fr auto auto;
+    grid-template-areas:
+        "eyebrow"
+        "hero"
+        "cta"
+        "footer";
+    padding: var(--pad-y) var(--pad-x);
+    gap: 0;
+}
+
+/* ============================================================
+   EYEBROW BAR
+   ============================================================ */
+.eyebrow {
+    grid-area: eyebrow;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding-bottom: 1.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    border-bottom: 1px solid var(--line);
+    opacity: 0;
+    transform: translateY(-8px);
+    transition: opacity 0.7s ease 1.2s, transform 0.7s var(--ease-expo) 1.2s;
+}
+
+.eyebrow.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.eyebrow__divider {
+    display: block;
+    width: 24px;
+    height: 1px;
+    background: var(--line);
+    flex-shrink: 0;
+}
+
+.eyebrow__spacer { flex: 1; }
+
+.eyebrow__tag--right {
+    color: var(--gold);
+    opacity: 0.6;
+}
+
+/* ============================================================
+   HERO — NAME
+   ============================================================ */
+.hero {
+    grid-area: hero;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 4vh 0 3vh;
+}
+
+/* Name — large italic serif */
+.name {
+    font-family: var(--font-serif);
+    font-size: var(--name-sz);
+    font-weight: 400;
+    font-style: italic;
+    line-height: 0.9;
+    letter-spacing: -0.025em;
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    margin-bottom: clamp(1.5rem, 3vw, 2.5rem);
+    cursor: default;
+}
+
+.name__row {
+    display: flex;
+    overflow: hidden;
+}
+
+/* Each character animates individually */
+.nc {
+    display: inline-block;
+    will-change: transform, opacity;
+    opacity: 0;
+    transform: translateY(105%) skewY(4deg);
+    transition:
+        opacity  0.01s linear        calc(var(--i) * 0.045s + 0.85s),
+        transform 0.75s var(--ease-expo) calc(var(--i) * 0.045s + 0.85s);
+}
+
+.nc.show {
+    opacity: 1;
+    transform: translateY(0) skewY(0deg);
+}
+
+/* Hover: wave color effect across name chars */
+.name:hover .nc {
+    color: var(--gold-lt);
+    transition:
+        color      0.35s ease       calc(var(--i) * 0.025s),
+        opacity    0.01s linear     0s,
+        transform  0.75s var(--ease-expo) 0s;
+}
+
+/* Subtitle */
+.subtitle {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.8s ease 1.65s, transform 0.8s var(--ease-expo) 1.65s;
+}
+
+.subtitle.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.subtitle__mark {
+    font-family: var(--font-serif);
+    font-size: clamp(1.2rem, 2.5vw, 2rem);
+    color: var(--gold);
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.subtitle__text {
+    font-family: var(--font-mono);
+    font-size: var(--sub-sz);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+}
+
+/* ============================================================
+   CTA BUTTON SECTION
+   ============================================================ */
+.cta {
+    grid-area: cta;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    padding: 3rem 0 2rem;
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 0.8s ease 2.05s, transform 0.8s var(--ease-expo) 2.05s;
+}
+
+.cta.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ── Base button reset ── */
+.btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.85rem 1.7rem;
+    font-family: var(--font-mono);
+    font-size: var(--btn-sz);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text);
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* ============================================================
+   BUTTON 1 — VIEW WORK
+   Liquid gold sweep from left. Arrow launches right.
+   ============================================================ */
+.btn--work {
+    border: 1px solid rgba(201, 169, 107, 0.35);
+    transition: color 0.35s ease, border-color 0.35s ease;
+}
+
+/* The flooding fill layer */
+.btn--work .btn__bg {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, var(--gold) 0%, var(--gold-lt) 100%);
+    transform: translateX(-102%);
+    transition: transform 0.55s var(--ease-expo);
+    z-index: 0;
+    will-change: transform;
+}
+
+.btn--work .btn__text,
+.btn--work .btn__icon {
+    position: relative;
+    z-index: 1;
+    transition: color 0.35s ease;
+}
+
+.btn--work .btn__icon {
+    display: flex;
+    align-items: center;
+    transition: transform 0.45s var(--ease-back), color 0.35s ease;
+}
+
+/* Hover */
+.btn--work:hover .btn__bg       { transform: translateX(0); }
+.btn--work:hover .btn__text     { color: var(--bg); }
+.btn--work:hover .btn__icon     { transform: translateX(7px); color: var(--bg); }
+.btn--work:hover                { border-color: var(--gold); }
+
+/* Active */
+.btn--work:active .btn__bg      { transform: translateX(0) scaleX(1.03); }
+
+/* ============================================================
+   BUTTON 2 — SCROLL DOMAINS
+   SVG border trace (clockwise perimeter draw) +
+   text scramble effect (driven from script.js).
+   The button has NO default border — the SVG IS the border.
+   ============================================================ */
+.btn--domains {
+    border: 1px solid var(--line);
+    transition: color 0.3s ease, border-color 0.3s ease;
+}
+
+.btn--domains .btn__icon {
+    display: flex;
+    align-items: center;
+    transition: transform 0.55s var(--ease-expo), color 0.3s ease;
+}
+
+/* Animated SVG trace overlay */
+.btn__trace {
+    position: absolute;
+    inset: -1px;
+    width: calc(100% + 2px);
+    height: calc(100% + 2px);
+    pointer-events: none;
+    overflow: visible;
+    z-index: 2;
+}
+
+.trace__rect {
+    fill: none;
+    stroke: var(--gold);
+    stroke-width: 1.2;
+    /* stroke-dasharray and stroke-dashoffset set per JS */
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.65s var(--ease-expo);
+}
+
+/* Hover */
+.btn--domains:hover              { color: var(--gold-lt); border-color: transparent; }
+.btn--domains:hover .btn__icon   { transform: rotate(180deg); }
+
+/* ============================================================
+   BUTTON 3 — HIRE ME
+   Concentric rings pulse outward. A small "live" dot pulses.
+   Button glows amber on hover.
+   ============================================================ */
+.btn--hire {
+    border: 1px solid rgba(201, 169, 107, 0.3);
+    transition:
+        color           0.35s ease,
+        border-color    0.35s ease,
+        box-shadow      0.45s ease,
+        background      0.45s ease;
+}
+
+/* Ring wrapper fills the button */
+.hire__rings {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-radius: 2px;
+}
+
+.hire__ring {
+    position: absolute;
+    inset: 0;
+    border: 1.2px solid var(--gold);
+    border-radius: 2px;
+    opacity: 0;
+    transform: scale(1);
+}
+
+/* Rings only animate on hover */
+.btn--hire:hover .hire__ring {
+    animation: ring-pulse 1.4s var(--ease-expo) var(--d) infinite;
+}
+
+@keyframes ring-pulse {
+    0%   { opacity: 0.65; transform: scale(1);   }
+    100% { opacity: 0;    transform: scale(1.85); }
+}
+
+/* Pulsing availability dot */
+.hire__dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--gold);
+    flex-shrink: 0;
+    opacity: 0;
+    transform: scale(0.4);
+    transition: opacity 0.3s ease, transform 0.4s var(--ease-back);
+}
+
+.btn--hire:hover .hire__dot {
+    opacity: 1;
+    transform: scale(1);
+    animation: dot-beat 1.1s ease-in-out infinite;
+}
+
+@keyframes dot-beat {
+    0%, 100% { transform: scale(1);    opacity: 1;   }
+    50%       { transform: scale(1.35); opacity: 0.7; }
+}
+
+/* Starburst icon spins on hover */
+.hire__star {
+    display: flex;
+    align-items: center;
+    transition: transform 0.6s var(--ease-expo), color 0.3s ease;
+    color: var(--gold-dk);
+    opacity: 0.5;
+}
+
+/* Hover state */
+.btn--hire:hover {
+    border-color: rgba(201, 169, 107, 0.6);
+    background: rgba(201, 169, 107, 0.07);
+    color: var(--gold-lt);
+    box-shadow:
+        0 0 0   1px rgba(201, 169, 107, 0.15),
+        0 0 28px   rgba(201, 169, 107, 0.18),
+        0 0 60px   rgba(201, 169, 107, 0.08);
+}
+
+.btn--hire:hover .hire__star {
+    transform: rotate(90deg) scale(1.2);
+    color: var(--gold);
+    opacity: 1;
+}
+
+/* ============================================================
+   PAGE FOOTER
+   ============================================================ */
+.page-footer {
+    grid-area: footer;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: lowercase;
+    color: var(--text-dim);
+    padding: 1.5rem 0 0;
+    border-top: 1px solid var(--line);
+    opacity: 0;
+    transition: opacity 0.6s ease 2.4s;
+}
+
+.page-footer.visible { opacity: 1; }
+
+.page-footer__sep { opacity: 0.3; margin: 0 0.3em; }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 640px) {
+    .page {
+        padding: 1.6rem 1.6rem;
+        gap: 0;
+    }
+
+    .cta {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .btn {
+        justify-content: space-between;
+    }
+
+    .eyebrow__tag--right { display: none; }
+}
+
+@media (max-width: 400px) {
+    :root {
+        --name-sz: clamp(3.8rem, 18vw, 6rem);
+    }
+}
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    .grain { animation: none; }
 }
